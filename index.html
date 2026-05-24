@@ -3,10 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--
+  Referrer policy: YouTube's embed player requires a valid Referer header.
+  GitHub Pages and some browsers default to stripping it, which causes
+  Error 153 (Video player configuration error). 'strict-origin-when-cross-origin'
+  sends only the origin (https://thunderz96.github.io) when navigating cross-site,
+  which is enough for YouTube to verify the embed.
+-->
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Siege of Orgrimmar — 10-Man Heroic Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<!--
+  Wowhead Power tooltip script.
+  Auto-detects links to wowhead.com/<game>/spell=ID, npc=ID, item=ID, etc.,
+  and renders a rich tooltip on hover. Free, no API key needed.
+  whTooltips config sets defaults: which game version to query, icon size,
+  and whether to color-link based on quality.
+-->
+<script>
+  const whTooltips = {
+    colorLinks: true,
+    iconizeLinks: true,
+    renameLinks: false,
+    iconSize: 'small'
+  };
+</script>
+<script src="https://wow.zamimg.com/widgets/power.js"></script>
 <style>
   /* ---------------------------------------------------------------------------
      SIEGE OF ORGRIMMAR — 10-MAN HEROIC GUIDE
@@ -521,12 +545,107 @@
   /* -------------------------------------------------------------------------
      PRINT — useful if guildies want to print a copy for the raid table
      ------------------------------------------------------------------------- */
+  /* -------------------------------------------------------------------------
+     PRINT — useful if guildies want to print a copy for the raid table
+     ------------------------------------------------------------------------- */
   @media print {
     body { background: white; color: black; }
     body::before { display: none; }
     .back-to-top { display: none; }
     .boss { break-inside: avoid; border: 1px solid #888; }
     a { color: #444; border-bottom: none; }
+    details.video { display: none; }
+  }
+
+  /* -------------------------------------------------------------------------
+     VIDEO EMBED — collapsible <details> per boss
+     ------------------------------------------------------------------------- */
+  details.video {
+    margin: 1.5rem 0 0;
+    padding: 0;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--rad-md);
+    overflow: hidden;
+  }
+  details.video summary {
+    padding: 1rem 1.4rem;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    color: var(--ember);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    list-style: none;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  details.video summary::-webkit-details-marker { display: none; }
+  details.video summary::before {
+    content: '▶';
+    display: inline-block;
+    margin-right: 0.75rem;
+    color: var(--horde);
+    font-size: 0.7em;
+    transition: transform 0.2s;
+  }
+  details.video[open] summary::before { transform: rotate(90deg); }
+  details.video summary:hover { background: rgba(201,49,38,0.08); }
+
+  /* Video wrapper — keeps a 16:9 aspect ratio without JS                       */
+  .video-wrap {
+    position: relative;
+    padding-bottom: 56.25%;       /* 16:9 ratio                                */
+    height: 0;
+    overflow: hidden;
+    background: black;
+  }
+  .video-wrap iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: 0;
+  }
+
+  /* Wowhead reference link in the boss header                                 */
+  .wowhead-ref {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    background: rgba(244,169,70,0.08);
+    border: 1px solid rgba(244,169,70,0.3);
+    border-radius: var(--rad-sm);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ember);
+    text-decoration: none;
+    border-bottom: none;
+  }
+  .wowhead-ref:hover {
+    background: rgba(244,169,70,0.15);
+    border-color: var(--ember);
+    color: var(--ember-bright);
+  }
+  .wowhead-ref::before { content: '⌕'; font-size: 1rem; }
+
+  /* Wowhead-styled ability links — Wowhead's power.js will color them by
+     quality automatically, but we want a sensible fallback if the script
+     fails to load (e.g. user is offline). Underline-on-hover keeps it
+     discoverable without dotted lines cluttering the page.                    */
+  .ability-name a,
+  .ability-name a:link,
+  .ability-name a:visited {
+    color: var(--ember-bright);
+    text-decoration: none;
+    border-bottom: 1px dotted transparent;
+    transition: border-color 0.2s;
+  }
+  .ability-name a:hover {
+    border-bottom-color: var(--ember-bright);
   }
 </style>
 </head>
@@ -620,6 +739,7 @@
         <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=71543/immerseus" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -641,29 +761,29 @@
 
     <h4>Immerseus Phase</h4>
     <div class="ability">
-      <span class="ability-name">Sha Bolt</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Sha+Bolt" target="_blank" rel="noopener">Sha Bolt</a></span>
       <span class="ability-desc">Hits every raid member every ~10 seconds, dealing shadow damage and leaving a void zone at their feet. Stay 5+ yards apart; move just out of your zone so the next one drops adjacent (saves space).</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Swirl</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Swirl" target="_blank" rel="noopener">Swirl</a></span>
       <span class="ability-desc">Summons moving void zones AND channels a 10-second water-jet in a cone in front. The cone rotates clockwise. Stay out of the front arc and dodge the wandering zones.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Corrosive Blast</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Corrosive+Blast" target="_blank" rel="noopener">Corrosive Blast</a></span>
       <span class="ability-desc">Frontal cone every ~35s. Inflicts a stacking 300% increased shadow-damage debuff — <strong>tank swap on every cast</strong>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Seeping Sha</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Seeping+Sha" target="_blank" rel="noopener">Seeping Sha</a></span>
       <span class="ability-desc">A ring of water around Immerseus. Don't run through him — you'll be damaged and knocked back. Melee his hitbox edge, not his model.</span>
     </div>
 
     <h4>Split Phase</h4>
     <div class="ability">
-      <span class="ability-name">Sha Puddles (hostile)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Sha+Puddles" target="_blank" rel="noopener">Sha Puddles</a> (hostile)</span>
       <span class="ability-desc">Kill them. When one dies, players within 10 yards get +25% damage to Sha Puddles, stacking. Cluster your DPS around dying puddles to snowball.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Contaminated Puddles (friendly)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Contaminated+Puddles" target="_blank" rel="noopener">Contaminated Puddles</a> (friendly)</span>
       <span class="ability-desc">Heal them to full. When fully healed, players within 12 yards get +75% healing done AND +25% mana. Healers chain through them.</span>
     </div>
     <div class="ability">
@@ -754,6 +874,18 @@
       Sha Bolt zone and start a chain death.
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/E-viay6eizg?rel=0"
+          title="Fatboss 10-Heroic Guide — Immerseus"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -783,6 +915,7 @@
         <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=71475/rook-stonetoe" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -800,15 +933,15 @@
 
     <h3>The Three Bosses</h3>
     <div class="ability">
-      <span class="ability-name">Rook Stonetoe (Tanked)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Rook+Stonetoe" target="_blank" rel="noopener">Rook Stonetoe</a> (Tanked)</span>
       <span class="ability-desc">Uses <em>Vengeful Strikes</em>, a frontal cone. Tank faces him away. His Desperate Measures summons three adds: <em>Embodied Misery</em>, <em>Sorrow</em>, and <em>Gloom</em>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">He Softfoot (Mobile)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=He+Softfoot" target="_blank" rel="noopener">He Softfoot</a> (Mobile)</span>
       <span class="ability-desc">Drops <em>Garrote</em> debuffs and poison void zones. Doesn't need a hard tank — kite him through clean ground. Interrupt nothing of his; everything he does is movement-based.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Sun Tenderheart (Caster)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Sun+Tenderheart" target="_blank" rel="noopener">Sun Tenderheart</a> (Caster)</span>
       <span class="ability-desc">Stands still and casts <em>Sha Sear</em> — <strong>interrupt every cast</strong>. Drops <em>Calamity</em> void zones.</span>
     </div>
 
@@ -887,6 +1020,18 @@
       them together is the cleanest finish.
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/JuvPnuTGFEI?rel=0"
+          title="Fatboss 10-Heroic Guide — Fallen Protectors"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -916,6 +1061,7 @@
         <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=72276/amalgam-of-corruption" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -935,23 +1081,23 @@
 
     <h3>Encounter Abilities</h3>
     <div class="ability">
-      <span class="ability-name">Corruption (debuff)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Corruption" target="_blank" rel="noopener">Corruption</a> (debuff)</span>
       <span class="ability-desc">Every player starts at 0. It grows from soaking <em>Residual Corruption</em> orbs, from <em>Self Doubt</em>, and from raid mechanics. High corruption = lower damage/healing done, plus the boss eats your power.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Test Realm</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Test+Realm" target="_blank" rel="noopener">Test Realm</a></span>
       <span class="ability-desc">Click an orb near Norushen → teleported to a personal realm. Kill the manifestation of your sin, return purified. DPS realms have adds; healer realms need to keep an NPC alive; tank realms test survival.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Blind Hatred</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Blind+Hatred" target="_blank" rel="noopener">Blind Hatred</a></span>
       <span class="ability-desc">A rotating beam from the Amalgam. Dodge it — predictable but deadly. It rotates one direction; pre-position to walk against the spin.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Unleashed Manifestation / Essence</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Unleashed+Manifestation+/+Essence" target="_blank" rel="noopener">Unleashed Manifestation / Essence</a></span>
       <span class="ability-desc">Adds that periodically spawn. <strong>Kill them fast</strong> — they fuse with the boss if ignored, granting buffs.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Expel Corruption</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Expel+Corruption" target="_blank" rel="noopener">Expel Corruption</a></span>
       <span class="ability-desc">Boss launches projectiles. Intercept (stand in their path) to prevent them from reaching the boss — otherwise he gets stronger.</span>
     </div>
 
@@ -1009,6 +1155,18 @@
       CDs save the pull.
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/eUgczu-npes?rel=0"
+          title="Fatboss 10-Heroic Guide — Norushen"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -1038,6 +1196,7 @@
         <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=71734/sha-of-pride" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -1067,27 +1226,27 @@
 
     <h3>Encounter Abilities</h3>
     <div class="ability">
-      <span class="ability-name">Wounded Pride</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Wounded+Pride" target="_blank" rel="noopener">Wounded Pride</a></span>
       <span class="ability-desc">Stacking debuff on the tank. <strong>Swap on each application</strong>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Swelling Pride</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Swelling+Pride" target="_blank" rel="noopener">Swelling Pride</a></span>
       <span class="ability-desc">Cast every ~45 seconds. Detonates everyone — damage scales with your Pride. At 0–25 Pride: minor. At 75+ Pride: deadly AND it gives you more Pride. Spend Pride downward, not upward.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Mark of Arrogance</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Mark+of+Arrogance" target="_blank" rel="noopener">Mark of Arrogance</a></span>
       <span class="ability-desc">A debuff on a player. <strong>Don't dispel it</strong> — let it expire (the player soaks it themselves for the +Pride cost). Only dispel if the player is at 100 Pride risk.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Manifestation of Pride</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Manifestation+of+Pride" target="_blank" rel="noopener">Manifestation of Pride</a></span>
       <span class="ability-desc">Add. <strong>Burst it down fast and interrupt</strong>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Projection of Pride (prison)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Projection+of+Pride" target="_blank" rel="noopener">Projection of Pride</a> (prison)</span>
       <span class="ability-desc">Targets a player and locks them in a translucent bubble. Other players step in to break them out — but the rescuer gains +25 Pride. Rotate rescuers.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Gift of the Titans</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Gift+of+the+Titans" target="_blank" rel="noopener">Gift of the Titans</a></span>
       <span class="ability-desc">A buff orb appears periodically. Click it to gain a temporary buff that lets you safely dispel Mark of Arrogance without giving Pride.</span>
     </div>
 
@@ -1141,6 +1300,18 @@
       area or take a Gift of the Titans dispel.
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/sR8mGPo4n0M?rel=0"
+          title="Fatboss 10-Heroic Guide — Sha of Pride"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -1170,6 +1341,7 @@
         <span class="boss-meta-value">2T · 3H · 5 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=72249/galakras" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -1193,19 +1365,19 @@
       adds inside.
     </p>
     <div class="ability">
-      <span class="ability-name">Korgra the Snake</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Korgra+the+Snake" target="_blank" rel="noopener">Korgra the Snake</a></span>
       <span class="ability-desc">Drops poison clouds. Kite her into clean ground; tank moves her continuously.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Thranok Skullcrusher</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Thranok+Skullcrusher" target="_blank" rel="noopener">Thranok Skullcrusher</a></span>
       <span class="ability-desc">Chains a player to himself and casts <em>Skull Cracker</em> — chained player runs away to extend the chain and break it.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Krugruk</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Krugruk" target="_blank" rel="noopener">Krugruk</a></span>
       <span class="ability-desc">Knockback monster. Position him with a wall behind your tank so you're not flung off ledges.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Drakkari Lord Dagryn</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Drakkari+Lord+Dagryn" target="_blank" rel="noopener">Drakkari Lord Dagryn</a></span>
       <span class="ability-desc">Casts <em>Muzzle Spray</em> knockbacks. Tank dances around the tower base to dodge.</span>
     </div>
 
@@ -1220,19 +1392,19 @@
 
     <h3>Phase 2 — The Drake Lands</h3>
     <div class="ability">
-      <span class="ability-name">Flames of Galakrond</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Flames+of+Galakrond" target="_blank" rel="noopener">Flames of Galakrond</a></span>
       <span class="ability-desc">Stacking shadow-fire DoT on the tank. <strong>Swap on every application</strong>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Pulsing Flames</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Pulsing+Flames" target="_blank" rel="noopener">Pulsing Flames</a></span>
       <span class="ability-desc">Raid-wide damage aura that ramps over the phase. This is the soft enrage — beat the boss before it kills you.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Flame Breath</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Flame+Breath" target="_blank" rel="noopener">Flame Breath</a></span>
       <span class="ability-desc">Frontal cone. Tank faces away.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Fireball Volley</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Fireball+Volley" target="_blank" rel="noopener">Fireball Volley</a></span>
       <span class="ability-desc">Targets a player with a meteor — players within range share the damage. <strong>Soak in groups</strong> to split. If only one player is hit, they die.</span>
     </div>
 
@@ -1284,6 +1456,18 @@
       perfectly.
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/WFjAhHDIi18?rel=0"
+          title="Fatboss 10-Heroic Guide — Galakras"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -1313,6 +1497,7 @@
         <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=71466/iron-juggernaut" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -1330,37 +1515,37 @@
 
     <h3>Assault Phase Abilities</h3>
     <div class="ability">
-      <span class="ability-name">Flame Vents</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Flame+Vents" target="_blank" rel="noopener">Flame Vents</a></span>
       <span class="ability-desc">Frontal cone on the tank, stacking debuff. <strong>Swap at 3–4 stacks</strong>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Borer Drill</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Borer+Drill" target="_blank" rel="noopener">Borer Drill</a></span>
       <span class="ability-desc">A drill chases a random raid member, leaving a ground spike that damages anyone who steps on it. Kite predictably so other players can avoid the trail.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Crawler Mine</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Crawler+Mine" target="_blank" rel="noopener">Crawler Mine</a></span>
       <span class="ability-desc">Spawns and crawls toward a player. They beep faster as they near detonation. <strong>Stomp them</strong> (run over them) or they explode the raid. Tanks or immunity classes (Cloak of Shadows rogue) take them.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Mortar Cannon</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Mortar+Cannon" target="_blank" rel="noopener">Mortar Cannon</a></span>
       <span class="ability-desc">Red ground circles. Move out before impact.</span>
     </div>
 
     <h3>Siege Phase Abilities</h3>
     <div class="ability">
-      <span class="ability-name">Shock Pulse</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Shock+Pulse" target="_blank" rel="noopener">Shock Pulse</a></span>
       <span class="ability-desc">Knockback from the boss. Position with a wall behind you or you'll get launched into mortars.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Cutter Laser</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Cutter+Laser" target="_blank" rel="noopener">Cutter Laser</a></span>
       <span class="ability-desc">A targeted laser tracks one player. <strong>Run it in a predictable arc</strong> away from the raid and away from Explosive Tar patches (laser + tar = pull-ending explosion).</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Seismic Activity</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Seismic+Activity" target="_blank" rel="noopener">Seismic Activity</a></span>
       <span class="ability-desc">Raid-wide damage tick. Healing CDs every Siege Phase.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Explosive Tar</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Explosive+Tar" target="_blank" rel="noopener">Explosive Tar</a></span>
       <span class="ability-desc">Pools of tar on the ground. Stay out — when the laser touches them, the room explodes.</span>
     </div>
 
@@ -1427,6 +1612,18 @@
       pull and stick to it.
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/MRU8bPWo7Xo?rel=0"
+          title="Fatboss 10-Heroic Guide — Iron Juggernaut"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -1456,6 +1653,7 @@
         <span class="boss-meta-value">2T · 3H · 5 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=71859/wavebinder-kardris" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -1473,11 +1671,11 @@
 
     <h3>The Bosses</h3>
     <div class="ability">
-      <span class="ability-name">Earthbreaker Haromm</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Earthbreaker+Haromm" target="_blank" rel="noopener">Earthbreaker Haromm</a></span>
       <span class="ability-desc">Casts <em>Froststorm Strike</em> on his tank — stacking debuff, swap on each application. Drops <em>Ashen Wall</em> ground effects.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Wavebinder Kardris</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Wavebinder+Kardris" target="_blank" rel="noopener">Wavebinder Kardris</a></span>
       <span class="ability-desc">Drops <em>Foul Stream</em> water trails. Summons <em>Foul Geysers</em> that spawn Foul Slime adds.</span>
     </div>
 
@@ -1566,6 +1764,18 @@
       counter-clockwise around the perimeter so you always have clean ground.
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/EdtNGY-REdA?rel=0"
+          title="Fatboss 10-Heroic Guide — Kor'kron Dark Shaman"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -1595,6 +1805,7 @@
         <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=71515/general-nazgrim" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -1617,15 +1828,15 @@
       stance-specific empowered ability.
     </p>
     <div class="ability">
-      <span class="ability-name">Defensive Stance</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Defensive+Stance" target="_blank" rel="noopener">Defensive Stance</a></span>
       <span class="ability-desc">Takes reduced damage AND reflects 100% of melee damage back. <strong>Only the active tank hits him</strong>. DPS focus adds or wait.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Battle Stance</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Battle+Stance" target="_blank" rel="noopener">Battle Stance</a></span>
       <span class="ability-desc">Normal damage. DPS the boss.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Berserker Stance</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Berserker+Stance" target="_blank" rel="noopener">Berserker Stance</a></span>
       <span class="ability-desc">Takes +25% damage. Burst window. Use cooldowns.</span>
     </div>
     <div class="ability">
@@ -1636,33 +1847,33 @@
     <h3>Adds</h3>
     <p>Adds spawn in waves throughout. <strong>Kill order: Warshaman → Arcweaver → Assassin → Ironblade.</strong></p>
     <div class="ability">
-      <span class="ability-name">Kor'kron Warshaman</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Korkron+Warshaman" target="_blank" rel="noopener">Kor'kron Warshaman</a></span>
       <span class="ability-desc">Heals Nazgrim and other adds with <em>Chain Heal</em>. <strong>Interrupt and kill first</strong>. Drops <em>Healing Tide Totem</em> — kill the totem immediately.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Kor'kron Arcweaver</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Korkron+Arcweaver" target="_blank" rel="noopener">Kor'kron Arcweaver</a></span>
       <span class="ability-desc">Casts <em>Magistrike</em> bouncing chain spells. Interrupt and kill second.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Kor'kron Assassin</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Korkron+Assassin" target="_blank" rel="noopener">Kor'kron Assassin</a></span>
       <span class="ability-desc">Stealthed, drops poison clouds, backstabs. Hunters can <em>Flare</em>; otherwise CC and burst.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Kor'kron Ironblade</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Korkron+Ironblade" target="_blank" rel="noopener">Kor'kron Ironblade</a></span>
       <span class="ability-desc">Trash melee. Tank pickup and cleave down.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Kor'kron Banner</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Korkron+Banner" target="_blank" rel="noopener">Kor'kron Banner</a></span>
       <span class="ability-desc">Drops occasionally — buffs all nearby adds with War Song. <strong>Kill instantly</strong> when it appears.</span>
     </div>
 
     <h3>Tank Mechanics</h3>
     <div class="ability">
-      <span class="ability-name">Sundering Blow</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Sundering+Blow" target="_blank" rel="noopener">Sundering Blow</a></span>
       <span class="ability-desc">Stacking debuff on the tank — armor shred. Swap at 2+ stacks.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Ravager (Heroic)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Ravager" target="_blank" rel="noopener">Ravager</a> (Heroic)</span>
       <span class="ability-desc">Nazgrim throws a weapon that spins on the floor. Don't walk through it — it gives him Rage.</span>
     </div>
 
@@ -1714,6 +1925,18 @@
       "STANCE — STOP DPS".
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/5R7m-ZpWjZY?rel=0"
+          title="Fatboss 10-Heroic Guide — General Nazgrim"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -1743,6 +1966,7 @@
         <span class="boss-meta-value">2T · 3H · 5 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=72276/malkorok" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -1761,27 +1985,27 @@
 
     <h3>Might of the Kor'kron Phase (2 minutes)</h3>
     <div class="ability">
-      <span class="ability-name">Ancient Miasma (absorb shield)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Ancient+Miasma" target="_blank" rel="noopener">Ancient Miasma</a> (absorb shield)</span>
       <span class="ability-desc">Healers cannot direct-heal. Instead they build up <em>Ancient Miasma</em> shields on each player. The shield is what soaks damage. <strong>Healers spam to keep everyone shielded</strong>. Take damage → eat shield → if no shield, you die.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Arcing Smash</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Arcing+Smash" target="_blank" rel="noopener">Arcing Smash</a></span>
       <span class="ability-desc">Frontal cone. Tank faces away; rest of raid stays out of the front.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Breath of Y'Shaarj</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Breath+of+YShaarj" target="_blank" rel="noopener">Breath of Y'Shaarj</a></span>
       <span class="ability-desc">Marks zones on the ground. Get out before impact — they leave persistent void zones.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Imploding Energy</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Imploding+Energy" target="_blank" rel="noopener">Imploding Energy</a></span>
       <span class="ability-desc">Spawns void orbs that must be soaked by players. The soaker takes the damage (absorbed by shield). Pre-assign soakers — one per orb. If unsoaked, raid-wide damage.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Fatal Strike</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Fatal+Strike" target="_blank" rel="noopener">Fatal Strike</a></span>
       <span class="ability-desc">Tank attack with a stacking debuff. <strong>Swap at 2–3 stacks</strong>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Seismic Slam</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Seismic+Slam" target="_blank" rel="noopener">Seismic Slam</a></span>
       <span class="ability-desc">AoE around the boss. Stay spread 5+ yards.</span>
     </div>
 
@@ -1792,11 +2016,11 @@
       shield system continues. Healers go all-out shielding.
     </p>
     <div class="ability">
-      <span class="ability-name">Displaced Energy</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Displaced+Energy" target="_blank" rel="noopener">Displaced Energy</a></span>
       <span class="ability-desc">Debuff during Blood Rage. The affected player explodes when it expires/dispelled. <strong>Move 8+ yards from the raid</strong> before it pops.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Relentless Assault</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Relentless+Assault" target="_blank" rel="noopener">Relentless Assault</a></span>
       <span class="ability-desc">Each Blood Rage Phase, Malkorok gains a permanent damage buff. This is the soft enrage — kill him in 3 Blood Rage cycles or it spirals.</span>
     </div>
 
@@ -1852,6 +2076,18 @@
       uptime is the entire fight</strong>.
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/WdgD1HW46P0?rel=0"
+          title="Fatboss 10-Heroic Guide — Malkorok"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -1881,6 +2117,7 @@
         <span class="boss-meta-value">2T · 3H · 5 DPS (1 of each per side)</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/search?q=Spoils+of+Pandaria" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -1916,37 +2153,37 @@
 
     <h3>Mogu Side Mechanics</h3>
     <div class="ability">
-      <span class="ability-name">Mogu Shadow Ritualists</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Mogu+Shadow+Ritualists" target="_blank" rel="noopener">Mogu Shadow Ritualists</a></span>
       <span class="ability-desc">Cast <em>Forbidden Magic</em>. Interrupt every cast.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Mogu Elders + Stone Statues</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Mogu+Elders+++Stone+Statues" target="_blank" rel="noopener">Mogu Elders + Stone Statues</a></span>
       <span class="ability-desc">Spawn Stone Statues. Kill the statues — they buff the Elder otherwise.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Anima Golems</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Anima+Golems" target="_blank" rel="noopener">Anima Golems</a></span>
       <span class="ability-desc">Cast <em>Matter Scramble</em> beams between two players. Both stand in BOTH beams (yes, really) to share the damage.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Crimson Reconstitution (Heroic)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Crimson+Reconstitution" target="_blank" rel="noopener">Crimson Reconstitution</a> (Heroic)</span>
       <span class="ability-desc">A healing pool on the floor for adds. Tank drags mobs out; standing in it damages players in Heroic.</span>
     </div>
 
     <h3>Mantid Side Mechanics</h3>
     <div class="ability">
-      <span class="ability-name">Set to Blow</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Set+to+Blow" target="_blank" rel="noopener">Set to Blow</a></span>
       <span class="ability-desc">Player gets a debuff and drops bombs on the floor that will detonate. Drop them in empty space; don't trigger them.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Amber Priest</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Amber+Priest" target="_blank" rel="noopener">Amber Priest</a></span>
       <span class="ability-desc">Casts <em>Residue</em> debuff. Dispel.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Wind Wielder</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Wind+Wielder" target="_blank" rel="noopener">Wind Wielder</a></span>
       <span class="ability-desc">Casts <em>Rage of the Empress</em>. Dispel; interrupt.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Kor'thik Warcaller</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Korthik+Warcaller" target="_blank" rel="noopener">Kor'thik Warcaller</a></span>
       <span class="ability-desc">Enrages when low HP. Kite during enrage.</span>
     </div>
 
@@ -2000,6 +2237,18 @@
       to be ready, then both pull together.
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/RbgaEZhv7Og?rel=0"
+          title="Fatboss 10-Heroic Guide — Spoils of Pandaria"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -2029,6 +2278,7 @@
         <span class="boss-meta-value">2T · 3H · 5 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=71529/thok-the-bloodthirsty" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -2048,29 +2298,29 @@
 
     <h3>Phase 1</h3>
     <div class="ability">
-      <span class="ability-name">Bloodthirsty (haste)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Bloodthirsty" target="_blank" rel="noopener">Bloodthirsty</a> (haste)</span>
       <span class="ability-desc">Thok's attack speed ramps over the phase. Tanks die faster as it stacks. Healers gear up.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Acid Breath</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Acid+Breath" target="_blank" rel="noopener">Acid Breath</a></span>
       <span class="ability-desc">Frontal cone. Tank faces away.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Tail Lash</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Tail+Lash" target="_blank" rel="noopener">Tail Lash</a></span>
       <span class="ability-desc">Rear cone. Don't stand behind him.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Deafening Screech</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Deafening+Screech" target="_blank" rel="noopener">Deafening Screech</a></span>
       <span class="ability-desc">Channeled spell. <strong>Do not cast spells during this</strong> — interrupted casts heal Thok and damage the caster.</span>
     </div>
 
     <h3>Phase 2</h3>
     <div class="ability">
-      <span class="ability-name">Fixate</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Fixate" target="_blank" rel="noopener">Fixate</a></span>
       <span class="ability-desc">Thok runs at random players. He's slow but deadly. <strong>Kite him in a planned circuit</strong>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Kor'kron Jailer NPC</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Korkron+Jailer+NPC" target="_blank" rel="noopener">Kor'kron Jailer NPC</a></span>
       <span class="ability-desc">A jailer guards each captive. Kill the jailer to free a captive. Thok will eat the freed captive, restoring Phase 1.</span>
     </div>
 
@@ -2157,6 +2407,18 @@
       timeline against the captive count.
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/MIWfXVKEFYs?rel=0"
+          title="Fatboss 10-Heroic Guide — Thok the Bloodthirsty"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -2186,6 +2448,7 @@
         <span class="boss-meta-value">2T · 3H · 5 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=71504/siegecrafter-blackfuse" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -2213,19 +2476,19 @@
 
     <h3>The Four Weapons</h3>
     <div class="ability">
-      <span class="ability-name">Crawler Mine</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Crawler+Mine" target="_blank" rel="noopener">Crawler Mine</a></span>
       <span class="ability-desc">Walking bombs. <strong>Highest priority kill</strong>. They blow up the raid if they leave the belt. Stun/snare them, focus down.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Laser Turret</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Laser+Turret" target="_blank" rel="noopener">Laser Turret</a></span>
       <span class="ability-desc">Targets a player with a laser. The laser must be <strong>kited away from the raid</strong>. Heroic: rotating fire rings.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Missile Turret</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Missile+Turret" target="_blank" rel="noopener">Missile Turret</a></span>
       <span class="ability-desc">Fires <em>Shockwave Missile</em>s with orange ground indicators. Move out.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Electromagnet</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Electromagnet" target="_blank" rel="noopener">Electromagnet</a></span>
       <span class="ability-desc">Pulls sawblades toward it. Useful — pulls sawblades off the floor. Don't kill it every wave; rotate so sawblades get cleared.</span>
     </div>
 
@@ -2244,19 +2507,19 @@
 
     <h3>Boss Mechanics</h3>
     <div class="ability">
-      <span class="ability-name">Electrostatic Charge</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Electrostatic+Charge" target="_blank" rel="noopener">Electrostatic Charge</a></span>
       <span class="ability-desc">Stacking debuff on the tank. <strong>Swap on stacks</strong>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Automated Shredder</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Automated+Shredder" target="_blank" rel="noopener">Automated Shredder</a></span>
       <span class="ability-desc">Mini-boss that off-tank kites <strong>35+ yards from Blackfuse</strong>. If they overlap, the Shredder heals the boss.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Sawblades</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Sawblades" target="_blank" rel="noopener">Sawblades</a></span>
       <span class="ability-desc">Periodically launched, leave persistent ground trails. Force the raid to slowly migrate.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Shockwave Missile</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Shockwave+Missile" target="_blank" rel="noopener">Shockwave Missile</a></span>
       <span class="ability-desc">From Missile Turrets — orange indicator, move out.</span>
     </div>
 
@@ -2309,6 +2572,18 @@
       sawblade safe zones. Verbal calls during the pull aren't enough.
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/38U4RAxhCTE?rel=0"
+          title="Fatboss 10-Heroic Guide — Siegecrafter Blackfuse"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -2338,6 +2613,7 @@
         <span class="boss-meta-value">2T · 3H · 5 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/search?q=Paragons+of+the+Klaxxi" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -2363,43 +2639,43 @@
 
     <h3>The Paragons (Heroic Kill Order)</h3>
     <div class="ability">
-      <span class="ability-name">1. Kaz'tik the Manipulator → kill SKEER first</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=1.+Kaztik+the+Manipulator+→+kill+SKEER+first" target="_blank" rel="noopener">1. Kaz'tik the Manipulator → kill SKEER first</a></span>
       <span class="ability-desc">No, you fight Skeer first. Skeer drops Bloods that must be killed. <strong>Lust on Skeer</strong>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Skeer the Bloodseeker</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Skeer+the+Bloodseeker" target="_blank" rel="noopener">Skeer the Bloodseeker</a></span>
       <span class="ability-desc">Drops <em>Blood</em> adds. Tank debuff. Burst him first with Lust.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Rik'kal the Dissector</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Rikkal+the+Dissector" target="_blank" rel="noopener">Rik'kal the Dissector</a></span>
       <span class="ability-desc">Casts <em>Injection</em>: stacking debuff on tank. Summons <em>Amber Parasites</em> — kill them fast.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Hisek the Swarmkeeper</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Hisek+the+Swarmkeeper" target="_blank" rel="noopener">Hisek the Swarmkeeper</a></span>
       <span class="ability-desc">Casts <em>Aim</em>: a charging line attack — ranged stack on the line to share damage; line takes <strong>~3 sec to charge</strong>, must position. <em>Sonic Discharge</em>: dispel.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Korven the Prime</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Korven+the+Prime" target="_blank" rel="noopener">Korven the Prime</a></span>
       <span class="ability-desc"><em>Encase in Amber</em>: locks a player in amber. Free them by attacking the block. <em>Hewn</em> tank debuff.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Iyyokuk the Lucid</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Iyyokuk+the+Lucid" target="_blank" rel="noopener">Iyyokuk the Lucid</a></span>
       <span class="ability-desc">Drops <em>Fiery Edge</em> — spread to avoid stacking damage. <em>Calculation</em>: math puzzle, players need to be in specific groupings.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Ka'roz the Locust</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Karoz+the+Locust" target="_blank" rel="noopener">Ka'roz the Locust</a></span>
       <span class="ability-desc"><em>Whirling</em>: spinning slash damage; avoid stacking. Gives <em>Strong Legs</em> buff that lets the raid break Amber blocks.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Xaril the Poisoned Mind</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Xaril+the+Poisoned+Mind" target="_blank" rel="noopener">Xaril the Poisoned Mind</a></span>
       <span class="ability-desc">Three poison colors (red/blue/yellow): <strong>each demands a different reaction</strong> — red = move, blue = stack, yellow = spread. Healers must recognize the color and call out.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Kaz'tik the Manipulator</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Kaztik+the+Manipulator" target="_blank" rel="noopener">Kaz'tik the Manipulator</a></span>
       <span class="ability-desc"><em>Mesmerize</em>: charms players. Use stuns to break. <em>Hungry Kunchong</em>: pet, kill during Mesmerize.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Kil'ruk the Wind-Reaver</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Kilruk+the+Wind-Reaver" target="_blank" rel="noopener">Kil'ruk the Wind-Reaver</a></span>
       <span class="ability-desc">Final boss. <em>Death from Above</em>: leap targeting a player — spread. <em>Reave</em>: tank cleave.</span>
     </div>
 
@@ -2464,6 +2740,18 @@
       out loud: "SKEER DEAD, RIK'KAL ACTIVE — TANK PICK UP PARASITES".
     </div>
 
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/Kyx4zMgDnXE?rel=0"
+          title="Fatboss 10-Heroic Guide — Paragons of the Klaxxi"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
+
   </div>
 </article>
 
@@ -2493,6 +2781,7 @@
         <span class="boss-meta-value">2T · 3H · 5 DPS</span>
       </div>
     </div>
+      <a class="wowhead-ref" href="https://www.wowhead.com/mop-classic/npc=71865/garrosh-hellscream" target="_blank" rel="noopener">Wowhead reference</a>
   </header>
 
   <div class="boss-body">
@@ -2513,23 +2802,23 @@
 
     <h3>Phase 1 — Garrosh and Iron Stars (100% → 10%)</h3>
     <div class="ability">
-      <span class="ability-name">Desecrate</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Desecrate" target="_blank" rel="noopener">Desecrate</a></span>
       <span class="ability-desc">Periodically Garrosh casts <em>Desecrate</em> on a player, leaving a desecrated weapon on the floor. <strong>Don't stand on it</strong> — long-lasting void zone.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Annihilate</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Annihilate" target="_blank" rel="noopener">Annihilate</a></span>
       <span class="ability-desc">Frontal cleave. Melee stay behind boss.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Iron Stars</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Iron+Stars" target="_blank" rel="noopener">Iron Stars</a></span>
       <span class="ability-desc">Giant rolling Iron Stars cross the room. <strong>Use them</strong>: knock them into adds or into Garrosh himself (huge damage). Avoid getting hit yourself. Heroic: triggered when 4+ players group up.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Kor'kron Warbringers</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Korkron+Warbringers" target="_blank" rel="noopener">Kor'kron Warbringers</a></span>
       <span class="ability-desc">Adds. Off-tank picks up, raid cleaves them down.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Wolf Riders</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Wolf+Riders" target="_blank" rel="noopener">Wolf Riders</a></span>
       <span class="ability-desc">Adds that cast <em>Chain Lightning</em>. <strong>Do NOT interrupt</strong> — interrupting triggers a damage buff. Just kill them; the cast is weak.</span>
     </div>
 
@@ -2559,19 +2848,19 @@
 
     <h3>Phases 2 & 3 — Empowered Mechanics</h3>
     <div class="ability">
-      <span class="ability-name">Whirling Corruption</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Whirling+Corruption" target="_blank" rel="noopener">Whirling Corruption</a></span>
       <span class="ability-desc">Garrosh spins, summoning projectiles. <strong>Spread out</strong> so projectiles spread; standing close = bursts of damage.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Touch of Y'Shaarj</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Touch+of+YShaarj" target="_blank" rel="noopener">Touch of Y'Shaarj</a></span>
       <span class="ability-desc">Mind controls a player. <strong>Pre-assign stuns per player</strong>: Bash, Hammer of Justice, Quaking Palm. A controlled player nukes the raid with full rotation. Improvising = wipe.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Empowered Whirling Corruption</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Empowered+Whirling+Corruption" target="_blank" rel="noopener">Empowered Whirling Corruption</a></span>
       <span class="ability-desc">Heroic Phase 3. Spread is mandatory — projectiles also leave persistent voids.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Gripping Despair</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Gripping+Despair" target="_blank" rel="noopener">Gripping Despair</a></span>
       <span class="ability-desc">Stacking tank debuff. Swap at 8–10 stacks (the exact swap point depends on your tanks' gear).</span>
     </div>
 
@@ -2582,15 +2871,15 @@
       Stormwind. He heals to 60%. Final burn.
     </p>
     <div class="ability">
-      <span class="ability-name">Malice (Malicious Blast)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Malice" target="_blank" rel="noopener">Malice</a> (Malicious Blast)</span>
       <span class="ability-desc">Garrosh fires a beam at a player and stacks a debuff. Successive hits to the same player are deadly. <strong>Rotate players in/out of the beam</strong> using immunity cooldowns (Ice Block, Divine Shield, Cloak of Shadows, Bubble) to reset Malice stacks.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Manifest Rage</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Manifest+Rage" target="_blank" rel="noopener">Manifest Rage</a></span>
       <span class="ability-desc">Cast at 100 energy. Heavy raid damage AND summons many Manifestation of Rage adds. <strong>Interrupted by Iron Star impacts</strong> — kite Iron Stars to crash into Garrosh.</span>
     </div>
     <div class="ability">
-      <span class="ability-name">Bombardment / Iron Stars (Phase 4)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Bombardment+/+Iron+Stars" target="_blank" rel="noopener">Bombardment / Iron Stars</a> (Phase 4)</span>
       <span class="ability-desc">More Iron Stars. Designate kiters (Druids, Priests with Body and Soul) to lead them into Garrosh during Manifest Rage casts.</span>
     </div>
 
@@ -2652,6 +2941,18 @@
       <strong>Tusks of Mannoroth</strong> transmog — 1% rates each. They are
       removed when MoP Classic ends. Every kill counts.
     </div>
+
+    <details class="video">
+      <summary>Watch the Fatboss 10-Heroic Guide</summary>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube-nocookie.com/embed/5m4Un5iaH3E?rel=0"
+          title="Fatboss 10-Heroic Guide — Garrosh Hellscream"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+    </details>
 
   </div>
 </article>
