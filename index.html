@@ -1,0 +1,2718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Siege of Orgrimmar — 10-Man Heroic Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  /* ---------------------------------------------------------------------------
+     SIEGE OF ORGRIMMAR — 10-MAN HEROIC GUIDE
+     ---------------------------------------------------------------------------
+     Design direction: A dark, atmospheric tome inspired by the raid itself.
+     Deep blacks and Horde reds, with ember/gold accents for emphasis.
+     Cinzel for display headlines (carved-stone feel), Crimson Pro for body
+     text (book-like readability), JetBrains Mono for tags/metadata.
+
+     Color tokens are declared once in :root so the entire theme can shift
+     by editing them in one place.
+  --------------------------------------------------------------------------- */
+
+  :root {
+    --bg-deepest:   #0a0604;        /* near-black, base canvas         */
+    --bg-deep:      #14090a;        /* main page bg                    */
+    --bg-card:      #1c0e0e;        /* boss-card background            */
+    --bg-card-alt:  #241313;        /* alternate card / inner panels   */
+    --border:       #3a1f1c;        /* warm dark border                */
+    --border-bright:#5a2a26;        /* hover/active border             */
+
+    --ink:          #e8dac8;        /* primary text — parchment-warm   */
+    --ink-soft:     #b8a795;        /* secondary text                  */
+    --ink-faint:    #7a6b5d;        /* labels, metadata                */
+
+    --horde:        #c93126;        /* Horde-red primary accent        */
+    --horde-bright: #ec4231;        /* hover/glow                      */
+    --ember:        #f4a946;        /* warm gold/ember secondary       */
+    --ember-bright: #ffc46a;        /* gold highlights                 */
+    --sha:          #6b3fa0;        /* sha-purple — used sparingly     */
+    --jade:         #4a8c5f;        /* tank/healer/dps tag green-jade  */
+
+    --shadow-deep:  0 24px 48px -16px rgba(0,0,0,0.7);
+    --shadow-card:  0 8px 24px -8px rgba(0,0,0,0.6),
+                    inset 0 1px 0 rgba(255,200,150,0.04);
+
+    --rad-sm: 4px;
+    --rad-md: 8px;
+    --rad-lg: 14px;
+  }
+
+  /* -------------------------------------------------------------------------
+     RESET / GLOBAL
+     ------------------------------------------------------------------------- */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--ink);
+    background: var(--bg-deepest);
+    /* Layered background: vignette + subtle noise via SVG data URI for grain  */
+    background-image:
+      radial-gradient(ellipse at top, rgba(201,49,38,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at bottom, rgba(244,169,70,0.04) 0%, transparent 60%),
+      linear-gradient(180deg, var(--bg-deepest) 0%, var(--bg-deep) 50%, var(--bg-deepest) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Decorative grain overlay across the whole page — adds tome-like texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* All content sits above the grain overlay                                  */
+  .layout { position: relative; z-index: 2; }
+
+  /* -------------------------------------------------------------------------
+     TYPOGRAPHY
+     ------------------------------------------------------------------------- */
+  h1, h2, h3, h4 {
+    font-family: 'Cinzel', 'Trajan Pro', serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    color: var(--ink);
+  }
+
+  h1 { font-size: clamp(2.4rem, 5vw, 4.2rem); font-weight: 900; letter-spacing: 0.04em; }
+  h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+  h3 { font-size: 1.2rem; color: var(--ember); letter-spacing: 0.06em; text-transform: uppercase; }
+  h4 { font-size: 1rem; color: var(--ink-soft); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  p { margin-bottom: 1em; }
+  strong { color: var(--ember-bright); font-weight: 600; }
+  em { color: var(--ink-soft); }
+
+  a { color: var(--ember); text-decoration: none; border-bottom: 1px dotted var(--ember); transition: all 0.2s; }
+  a:hover { color: var(--ember-bright); border-bottom-color: var(--ember-bright); }
+
+  /* -------------------------------------------------------------------------
+     PAGE HEADER / HERO
+     ------------------------------------------------------------------------- */
+  .hero {
+    position: relative;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  /* Crossed-blades decorative SVG via CSS — gives the hero a sigil feel       */
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><circle cx='100' cy='100' r='90' fill='none' stroke='%23c93126' stroke-width='0.5' opacity='0.3'/><circle cx='100' cy='100' r='70' fill='none' stroke='%23c93126' stroke-width='0.3' opacity='0.2'/><circle cx='100' cy='100' r='50' fill='none' stroke='%23f4a946' stroke-width='0.3' opacity='0.2'/></svg>");
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero > * { position: relative; z-index: 1; }
+
+  .hero-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.35em;
+    color: var(--horde);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 {
+    margin-bottom: 1rem;
+    /* Gradient text for the title — fades from parchment to ember              */
+    background: linear-gradient(180deg, var(--ink) 0%, var(--ember) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 60px rgba(201,49,38,0.3);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    max-width: 620px;
+    margin: 0 auto 2.5rem;
+  }
+
+  /* Three little metadata pills under the hero subtitle                       */
+  .hero-meta {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .hero-meta span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--ember);
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-bright);
+    border-radius: var(--rad-sm);
+    text-transform: uppercase;
+    background: rgba(0,0,0,0.3);
+  }
+
+  /* -------------------------------------------------------------------------
+     CONTAINER & MAIN LAYOUT
+     ------------------------------------------------------------------------- */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  section.intro {
+    padding: 4rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  section.intro p {
+    font-size: 1.05rem;
+    color: var(--ink-soft);
+  }
+
+  /* -------------------------------------------------------------------------
+     QUICK-NAV TABLE OF CONTENTS
+     ------------------------------------------------------------------------- */
+  .toc {
+    margin-top: 2.5rem;
+    padding: 1.5rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--rad-md);
+  }
+  .toc h3 {
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: var(--horde);
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.5rem 1.5rem;
+    list-style: none;
+  }
+  .toc-grid li { display: flex; align-items: center; gap: 0.75rem; }
+  .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--horde);
+    width: 1.8rem;
+    text-align: right;
+  }
+  .toc a {
+    color: var(--ink-soft);
+    border-bottom: none;
+    font-size: 0.95rem;
+  }
+  .toc a:hover { color: var(--ember); }
+
+  /* -------------------------------------------------------------------------
+     BOSS CARD — the main repeating unit
+     ------------------------------------------------------------------------- */
+  .boss {
+    margin: 3rem 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--rad-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.3s ease;
+  }
+  .boss:hover { border-color: var(--border-bright); }
+
+  /* Header strip across the top of each boss card                              */
+  .boss-header {
+    padding: 2rem 2.5rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(201,49,38,0.06) 0%, transparent 100%);
+    position: relative;
+  }
+
+  .boss-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--horde);
+    margin-bottom: 0.5rem;
+  }
+
+  .boss-name {
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    margin-bottom: 0.4rem;
+  }
+
+  .boss-tagline {
+    font-style: italic;
+    color: var(--ink-faint);
+    font-size: 1rem;
+  }
+
+  /* Metadata strip: location, role split, lust timing                          */
+  .boss-meta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px dashed var(--border);
+  }
+  .boss-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  .boss-meta-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+  }
+  .boss-meta-value {
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    color: var(--ember);
+    letter-spacing: 0.04em;
+  }
+
+  /* Boss body: summary + detailed sections                                     */
+  .boss-body {
+    padding: 2rem 2.5rem 2.5rem;
+  }
+
+  /* Summary block: highlighted, bordered, easily scannable                     */
+  .summary {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    background: var(--bg-card-alt);
+    border-left: 3px solid var(--horde);
+    border-radius: 0 var(--rad-md) var(--rad-md) 0;
+  }
+  .summary h3 {
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--horde);
+  }
+  .summary p { font-size: 1rem; color: var(--ink); margin-bottom: 0; }
+
+  /* Sub-section headers inside boss body                                       */
+  .boss-body h3 {
+    margin: 2rem 0 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--ember);
+  }
+  .boss-body h4 {
+    margin: 1.5rem 0 0.5rem;
+    color: var(--ink);
+    font-size: 0.95rem;
+  }
+
+  /* -------------------------------------------------------------------------
+     LIST STYLES — used for tank/healer/dps action items, abilities, etc.
+     ------------------------------------------------------------------------- */
+  ul.bullets {
+    list-style: none;
+    margin-bottom: 1rem;
+  }
+  ul.bullets li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.55rem;
+    line-height: 1.55;
+  }
+  /* Custom bullet — a small ember diamond                                      */
+  ul.bullets li::before {
+    content: '';
+    position: absolute;
+    left: 0.25rem;
+    top: 0.6em;
+    width: 6px;
+    height: 6px;
+    background: var(--ember);
+    transform: rotate(45deg);
+    box-shadow: 0 0 8px rgba(244,169,70,0.5);
+  }
+
+  /* Ability list: each ability has a name and a description                    */
+  .ability {
+    margin-bottom: 0.85rem;
+    padding: 0.75rem 1rem;
+    background: rgba(0,0,0,0.25);
+    border-left: 2px solid var(--border-bright);
+    border-radius: 0 var(--rad-sm) var(--rad-sm) 0;
+  }
+  .ability-name {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    color: var(--ember-bright);
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+    display: block;
+    margin-bottom: 0.2rem;
+  }
+  .ability-desc { color: var(--ink-soft); font-size: 0.95rem; }
+
+  /* Role-tag system — color-coded chips for Tank/Healer/DPS                    */
+  .role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .role-card {
+    padding: 1rem 1.2rem;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    border-radius: var(--rad-md);
+  }
+  .role-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--rad-sm);
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+  }
+  .role-tank   { background: rgba(74,140,95,0.15);  color: #6fb988; border: 1px solid rgba(74,140,95,0.4); }
+  .role-healer { background: rgba(244,169,70,0.15); color: var(--ember-bright); border: 1px solid rgba(244,169,70,0.4); }
+  .role-dps    { background: rgba(201,49,38,0.15);  color: #f57267; border: 1px solid rgba(201,49,38,0.4); }
+  .role-all    { background: rgba(107,63,160,0.15); color: #a989d6; border: 1px solid rgba(107,63,160,0.4); }
+  .role-card ul.bullets li { font-size: 0.92rem; }
+
+  /* Danger callout — used for "do not do this" warnings                        */
+  .danger {
+    margin: 1rem 0;
+    padding: 0.9rem 1.2rem;
+    background: rgba(201,49,38,0.08);
+    border: 1px solid rgba(201,49,38,0.4);
+    border-left: 3px solid var(--horde);
+    border-radius: var(--rad-sm);
+    font-size: 0.95rem;
+  }
+  .danger::before { content: '⚠  '; color: var(--horde-bright); font-weight: 700; }
+
+  /* Tip callout — used for "pro tip" advice                                    */
+  .tip {
+    margin: 1rem 0;
+    padding: 0.9rem 1.2rem;
+    background: rgba(244,169,70,0.06);
+    border: 1px solid rgba(244,169,70,0.3);
+    border-left: 3px solid var(--ember);
+    border-radius: var(--rad-sm);
+    font-size: 0.95rem;
+  }
+  .tip::before { content: '✦  '; color: var(--ember-bright); font-weight: 700; }
+
+  /* -------------------------------------------------------------------------
+     PHASE BLOCK — for multi-phase fights
+     ------------------------------------------------------------------------- */
+  .phase {
+    margin: 1rem 0;
+    padding: 1.2rem 1.4rem;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--rad-md);
+  }
+  .phase-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--horde);
+    margin-bottom: 0.3rem;
+    display: block;
+  }
+  .phase-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: var(--ember);
+    margin-bottom: 0.6rem;
+    letter-spacing: 0.04em;
+  }
+
+  /* -------------------------------------------------------------------------
+     BACK-TO-TOP & FOOTER
+     ------------------------------------------------------------------------- */
+  footer {
+    margin-top: 4rem;
+    padding: 3rem 2rem 4rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    color: var(--ink-faint);
+    font-size: 0.9rem;
+  }
+  footer p { margin-bottom: 0.5rem; }
+  footer .sources {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--ember);
+    margin-top: 1rem;
+  }
+
+  .back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 48px;
+    height: 48px;
+    background: var(--horde);
+    color: var(--ink);
+    border: none;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.2s;
+    z-index: 100;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  }
+  .back-to-top.visible { opacity: 1; }
+  .back-to-top:hover { background: var(--horde-bright); transform: translateY(-2px); }
+
+  /* -------------------------------------------------------------------------
+     RESPONSIVE
+     ------------------------------------------------------------------------- */
+  @media (max-width: 700px) {
+    .hero { padding: 4rem 1.25rem 3rem; }
+    .container { padding: 0 1.25rem; }
+    .boss-header, .boss-body { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .boss-meta { gap: 1rem; }
+    h1 { font-size: 2rem; }
+    .role-grid { grid-template-columns: 1fr; }
+  }
+
+  /* -------------------------------------------------------------------------
+     PRINT — useful if guildies want to print a copy for the raid table
+     ------------------------------------------------------------------------- */
+  @media print {
+    body { background: white; color: black; }
+    body::before { display: none; }
+    .back-to-top { display: none; }
+    .boss { break-inside: avoid; border: 1px solid #888; }
+    a { color: #444; border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ===================================================================== -->
+<!-- HERO                                                                  -->
+<!-- ===================================================================== -->
+<header class="hero">
+  <div class="hero-eyebrow">Mists of Pandaria Classic · Tier 16</div>
+  <h1>Siege of Orgrimmar</h1>
+  <p class="hero-sub">
+    A 10-Man Heroic field manual. Fourteen bosses, four wings, one Warchief —
+    written for guilds learning the fight without a decade of muscle memory.
+  </p>
+  <div class="hero-meta">
+    <span>14 Encounters</span>
+    <span>Heroic Difficulty</span>
+    <span>10-Player Format</span>
+  </div>
+</header>
+
+<!-- ===================================================================== -->
+<!-- INTRO / HOW TO USE                                                    -->
+<!-- ===================================================================== -->
+<section class="intro">
+  <div class="container">
+    <h2 style="margin-bottom: 1rem;">How To Use This Guide</h2>
+    <p>
+      Each boss has two layers. The <strong>Summary</strong> is what to read 30 seconds
+      before a pull — the one paragraph everyone in the raid should know cold. The
+      <strong>Detailed Strategy</strong> beneath it is for raid leaders, officers, and
+      anyone preparing assignments: ability breakdowns, phase logic, role-by-role
+      checklists, and the Heroic-specific changes that turn a normal fight into a
+      gear-check.
+    </p>
+    <p>
+      Composition assumes <strong>2 tanks, 2–3 healers, 5–6 DPS</strong> unless noted.
+      Mechanics named in <em>italics</em> are spell names — they will appear in your
+      combat log and your boss-mod (BigWigs/DBM) timers.
+    </p>
+
+    <div class="toc">
+      <h3>Boss Index</h3>
+      <ul class="toc-grid">
+        <li><span class="toc-num">01</span><a href="#immerseus">Immerseus</a></li>
+        <li><span class="toc-num">02</span><a href="#fallen-protectors">The Fallen Protectors</a></li>
+        <li><span class="toc-num">03</span><a href="#norushen">Norushen</a></li>
+        <li><span class="toc-num">04</span><a href="#sha-of-pride">Sha of Pride</a></li>
+        <li><span class="toc-num">05</span><a href="#galakras">Galakras</a></li>
+        <li><span class="toc-num">06</span><a href="#iron-juggernaut">Iron Juggernaut</a></li>
+        <li><span class="toc-num">07</span><a href="#dark-shaman">Kor'kron Dark Shaman</a></li>
+        <li><span class="toc-num">08</span><a href="#nazgrim">General Nazgrim</a></li>
+        <li><span class="toc-num">09</span><a href="#malkorok">Malkorok</a></li>
+        <li><span class="toc-num">10</span><a href="#spoils">Spoils of Pandaria</a></li>
+        <li><span class="toc-num">11</span><a href="#thok">Thok the Bloodthirsty</a></li>
+        <li><span class="toc-num">12</span><a href="#blackfuse">Siegecrafter Blackfuse</a></li>
+        <li><span class="toc-num">13</span><a href="#klaxxi">Paragons of the Klaxxi</a></li>
+        <li><span class="toc-num">14</span><a href="#garrosh">Garrosh Hellscream</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+
+<!-- ===================================================================== -->
+<!-- 01 — IMMERSEUS                                                        -->
+<!-- ===================================================================== -->
+<article class="boss" id="immerseus">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 01 · Pools of Power</div>
+    <h2 class="boss-name">Immerseus</h2>
+    <p class="boss-tagline">A corrupted water elemental, the first gate-keeper.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">Vale of Eternal Sorrows</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">10 minutes (hard)</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">On Pull</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        A two-phase boss that rotates between fighting <em>Immerseus</em> directly
+        and a <em>Split Phase</em> where he shatters into adds. The "Corruption" bar
+        replaces a traditional health bar: every add you kill or heal removes 1
+        point of Corruption. Get him to 0 to win. Spread evenly around him, avoid
+        the <em>Sha Bolt</em> puddles, swap tanks on <em>Corrosive Blast</em>. Heroic
+        adds a stacking debuff (<em>Swelling Corruption</em>) that spawns adds when
+        you hit him, and a growing <em>Sha Pool</em> in the center of the room.
+      </p>
+    </div>
+
+    <h3>Encounter Abilities</h3>
+
+    <h4>Immerseus Phase</h4>
+    <div class="ability">
+      <span class="ability-name">Sha Bolt</span>
+      <span class="ability-desc">Hits every raid member every ~10 seconds, dealing shadow damage and leaving a void zone at their feet. Stay 5+ yards apart; move just out of your zone so the next one drops adjacent (saves space).</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Swirl</span>
+      <span class="ability-desc">Summons moving void zones AND channels a 10-second water-jet in a cone in front. The cone rotates clockwise. Stay out of the front arc and dodge the wandering zones.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Corrosive Blast</span>
+      <span class="ability-desc">Frontal cone every ~35s. Inflicts a stacking 300% increased shadow-damage debuff — <strong>tank swap on every cast</strong>.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Seeping Sha</span>
+      <span class="ability-desc">A ring of water around Immerseus. Don't run through him — you'll be damaged and knocked back. Melee his hitbox edge, not his model.</span>
+    </div>
+
+    <h4>Split Phase</h4>
+    <div class="ability">
+      <span class="ability-name">Sha Puddles (hostile)</span>
+      <span class="ability-desc">Kill them. When one dies, players within 10 yards get +25% damage to Sha Puddles, stacking. Cluster your DPS around dying puddles to snowball.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Contaminated Puddles (friendly)</span>
+      <span class="ability-desc">Heal them to full. When fully healed, players within 12 yards get +75% healing done AND +25% mana. Healers chain through them.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Center damage</span>
+      <span class="ability-desc">Each add that reaches the center pulses raid-wide shadow damage. Kill/heal them before they get there.</span>
+    </div>
+
+    <h3>Phase Strategy</h3>
+    <p>
+      The fight is a damage race against a soft enrage that you control: more
+      adds dealt with → less Corruption → shorter future Immerseus Phases. The
+      first Immerseus Phase is the longest of the fight, which is why
+      <strong>Bloodlust goes on pull</strong> — there's nothing better to save it
+      for.
+    </p>
+    <p>
+      Spread evenly around the boss in a wheel formation. Healers distribute
+      themselves so every spread group has coverage. Tanks face the boss away
+      from the raid and swap on every <em>Corrosive Blast</em>.
+    </p>
+
+    <h3>Heroic Changes</h3>
+    <div class="phase">
+      <span class="phase-label">Heroic Mechanic · Immerseus Phase</span>
+      <span class="phase-name">Swelling Corruption</span>
+      <p>
+        Once per Immerseus Phase, the boss gains a stacking buff equal to half
+        his current Corruption (so 50 stacks the first time). <strong>Every attack
+        removes a stack</strong>, gives the attacker a 6-second stacking shadow
+        DoT, AND spawns a <em>Congealed Sha</em> add that meleeing the attacker.
+      </p>
+      <p>
+        <strong>10-man wave strategy:</strong> stop DPS at 2–3 debuff stacks per
+        player. Let the adds spawn, kill them, let the DoT fall off and health
+        stabilize, then go again. After the first Swelling Corruption you can
+        usually just push through it normally.
+      </p>
+      <div class="tip">
+        Have a Holy Paladin run <em>Righteous Fury</em> to magnet the Congealed
+        Sha adds for cleave. Without one, your offtank picks them up at a
+        designated stack point.
+      </div>
+    </div>
+
+    <div class="phase">
+      <span class="phase-label">Heroic Mechanic · Split Phase</span>
+      <span class="phase-name">Sha Pool</span>
+      <p>
+        A growing void zone covers the center of the arena. It expands over
+        time AND each time an add reaches it. The bigger it gets, the more
+        damage it deals. <strong>Solution:</strong> rotate raid members with
+        defensive cooldowns through the pool to shrink it. The damage is low
+        per tick, so any class with a personal cooldown can soak.
+      </p>
+    </div>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>Face boss away. Swap on every <em>Corrosive Blast</em>.</li>
+          <li>Off-tank picks up Congealed Sha adds during Heroic Swelling Corruption.</li>
+          <li>Stay outside the boss hitbox between threat windows.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Spread for <em>Sha Bolt</em> raid damage; pre-shield if Disc.</li>
+          <li>Chain through Contaminated Puddles — be within 12 yards when one heals to full for the +75% healing buff.</li>
+          <li>Dispel the Swelling Corruption DoT on heavy hitters to extend the wave.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Stand 10 yards from dying Sha Puddles for the +25% damage stack.</li>
+          <li>Manage your own Swelling Corruption stacks — 2–3 max before a pause.</li>
+          <li>Rotate defensives in the Sha Pool during Split Phase.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="danger">
+      Do <em>not</em> stand in the center water at the start, or walk through
+      Immerseus to reposition. <em>Seeping Sha</em> will knock you back into a
+      Sha Bolt zone and start a chain death.
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 02 — THE FALLEN PROTECTORS                                            -->
+<!-- ===================================================================== -->
+<article class="boss" id="fallen-protectors">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 02 · Pools of Power</div>
+    <h2 class="boss-name">The Fallen Protectors</h2>
+    <p class="boss-tagline">Three corrupted monks — Rook, He, and Sun — fought as a council.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">Vale of Eternal Sorrows</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">10 minutes</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">On Pull</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        Three bosses, separate health bars, but they must all die within ~10
+        seconds of each other or the first to die heals back up. Each one
+        triggers a <em>Desperate Measures</em> phase at 66% and 33% health,
+        disappearing and spawning adds. Coordinate health levels — never let one
+        boss get more than ~5% ahead of the others. Bloodlust on pull.
+      </p>
+    </div>
+
+    <h3>The Three Bosses</h3>
+    <div class="ability">
+      <span class="ability-name">Rook Stonetoe (Tanked)</span>
+      <span class="ability-desc">Uses <em>Vengeful Strikes</em>, a frontal cone. Tank faces him away. His Desperate Measures summons three adds: <em>Embodied Misery</em>, <em>Sorrow</em>, and <em>Gloom</em>.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">He Softfoot (Mobile)</span>
+      <span class="ability-desc">Drops <em>Garrote</em> debuffs and poison void zones. Doesn't need a hard tank — kite him through clean ground. Interrupt nothing of his; everything he does is movement-based.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Sun Tenderheart (Caster)</span>
+      <span class="ability-desc">Stands still and casts <em>Sha Sear</em> — <strong>interrupt every cast</strong>. Drops <em>Calamity</em> void zones.</span>
+    </div>
+
+    <h3>Desperate Measures (66% / 33%)</h3>
+    <p>
+      Each boss disappears when they hit 66% and 33%. They return when their
+      adds are dealt with.
+    </p>
+    <div class="phase">
+      <span class="phase-label">Rook's Desperate Measures</span>
+      <span class="phase-name">Three Embodied adds + Mark of Anguish</span>
+      <p>
+        Rook drops <em>Mark of Anguish</em> on a player. That player must pass
+        it (by attacking another) before it expires, or it kills them.
+        Meanwhile <em>Embodied Sorrow</em>, <em>Gloom</em>, and <em>Misery</em> spawn.
+        Kill order: <strong>Sorrow → Gloom → Misery</strong>. Stack Sorrow and
+        Gloom with He Softfoot for cleave; finish on Misery.
+      </p>
+    </div>
+    <div class="phase">
+      <span class="phase-label">He's Desperate Measures</span>
+      <span class="phase-name">Noise Cancelling</span>
+      <p>
+        He casts <em>Noise Cancelling</em> — players must move to designated
+        ground markers to break it. Pre-assign positions.
+      </p>
+    </div>
+    <div class="phase">
+      <span class="phase-label">Sun's Desperate Measures</span>
+      <span class="phase-name">Meditation healing</span>
+      <p>
+        Sun begins channeling <em>Meditation</em> — heals herself and friends
+        rapidly. <strong>Interrupt the channel</strong> immediately or she'll
+        full-heal.
+      </p>
+    </div>
+
+    <h3>Heroic Changes</h3>
+    <ul class="bullets">
+      <li><strong>All three Desperate Measures fire at once</strong> when any boss hits the threshold (not staggered). Plan add priority carefully.</li>
+      <li>The <em>Shadow Word: Bane</em> dispel mechanic from Sun becomes more punishing — multiple players will need to spread before dispel.</li>
+      <li>Tighter execution window between bosses at the end — within 10 seconds means coordinated DPS slowdowns at low HP.</li>
+    </ul>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>Main tank: Rook, facing away.</li>
+          <li>Off-tank: pick up Embodied Misery during Rook's Desperate Measures.</li>
+          <li>Kite He Softfoot through clean ground; don't tank him still.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Dispel <em>Shadow Word: Bane</em> quickly (after the affected player moves out).</li>
+          <li>Healing CDs during Desperate Measures phases — raid damage spikes.</li>
+          <li>Track passes of the Mark of Anguish — pass receivers take heavy damage.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Match boss health percentages — slow down on whichever is ahead.</li>
+          <li>Assigned interrupters lock down Sun's <em>Sha Sear</em>.</li>
+          <li>Cleave Sorrow + Gloom together for efficient adds.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tip">
+      Use a DBM/BigWigs health-percentage tracker. Call out at 70%/35% to
+      signal "DPS slowdown imminent." Bringing all three to 5% then pushing
+      them together is the cleanest finish.
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 03 — NORUSHEN                                                         -->
+<!-- ===================================================================== -->
+<article class="boss" id="norushen">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 03 · Pools of Power</div>
+    <h2 class="boss-name">Norushen</h2>
+    <p class="boss-tagline">A trial of purity. Manage your Corruption or be consumed by it.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">Vale of Eternal Sorrows</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">~10 minutes</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">At 50% (burn phase)</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        You fight the <em>Amalgam of Corruption</em>, but the real mechanic is
+        the <em>Corruption</em> debuff on each player. High Corruption =
+        massively reduced output. Players use orbs near Norushen to enter a
+        <em>Test Realm</em> where they kill a personal demon to purify
+        themselves (back to 0 Corruption, full power). The boss takes less
+        damage from corrupted players and is empowered by absorbed corruption.
+        Burn it at 50%.
+      </p>
+    </div>
+
+    <h3>Encounter Abilities</h3>
+    <div class="ability">
+      <span class="ability-name">Corruption (debuff)</span>
+      <span class="ability-desc">Every player starts at 0. It grows from soaking <em>Residual Corruption</em> orbs, from <em>Self Doubt</em>, and from raid mechanics. High corruption = lower damage/healing done, plus the boss eats your power.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Test Realm</span>
+      <span class="ability-desc">Click an orb near Norushen → teleported to a personal realm. Kill the manifestation of your sin, return purified. DPS realms have adds; healer realms need to keep an NPC alive; tank realms test survival.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Blind Hatred</span>
+      <span class="ability-desc">A rotating beam from the Amalgam. Dodge it — predictable but deadly. It rotates one direction; pre-position to walk against the spin.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Unleashed Manifestation / Essence</span>
+      <span class="ability-desc">Adds that periodically spawn. <strong>Kill them fast</strong> — they fuse with the boss if ignored, granting buffs.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Expel Corruption</span>
+      <span class="ability-desc">Boss launches projectiles. Intercept (stand in their path) to prevent them from reaching the boss — otherwise he gets stronger.</span>
+    </div>
+
+    <h3>Phase Strategy</h3>
+    <p>
+      The fight is paced by who's been purified. <strong>Purify DPS first</strong>
+      so they can ramp damage; then tanks (who soak the most corruption from
+      tank mechanics); healers last (they gain Corruption slowest).
+    </p>
+    <p>
+      Tanks rotate Amalgam threat between active tanking and Test Realm
+      visits. A tank entering the realm needs the other to taunt before they
+      leave; an Unleashed Manifestation can spawn during this swap, so
+      prep cooldowns.
+    </p>
+
+    <h3>Heroic Changes</h3>
+    <ul class="bullets">
+      <li><strong>Quarantine</strong>: high-corruption players get <em>Quarantined</em> in a bubble — they take and deal heavy damage to anyone trapped with them. Spread before dispel windows.</li>
+      <li><strong>Burst of Anger</strong>: Unleashed Manifestations channel a raid-wide damage spell. <strong>Stun and interrupt</strong> them — Capacitor Totem, Solar Beam, Shockwave all work.</li>
+      <li><strong>Icy Fear</strong>: scales with boss health lost. The burn phase at 50% becomes a healer test.</li>
+    </ul>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>One tank starts in Test Realm; other takes Amalgam.</li>
+          <li>Rotate purification — never both purified, never both corrupted at the swap.</li>
+          <li>Soak <em>Residual Corruption</em> orbs when you're already corrupted; it removes them from the floor but gives +25 Corruption.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Stay on the Amalgam tank during pulses; raid damage ramps with boss HP loss.</li>
+          <li>Save cooldowns for 50% burn — <em>Icy Fear</em> raid damage is highest then.</li>
+          <li>Enter Test Realm late; you generate Corruption slowest.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Purify FIRST — go in, kill your demon, come back. Don't tunnel the boss while corrupted.</li>
+          <li>Stun/interrupt Unleashed Manifestations.</li>
+          <li>Intercept <em>Expel Corruption</em> projectiles; missing one buffs the boss.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tip">
+      Lust at 50%. By then most of the raid is purified, the burn phase has
+      started, and the raid damage is highest — cooldowns aligned with healer
+      CDs save the pull.
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 04 — SHA OF PRIDE                                                     -->
+<!-- ===================================================================== -->
+<article class="boss" id="sha-of-pride">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 04 · The Scarred Vale</div>
+    <h2 class="boss-name">Sha of Pride</h2>
+    <p class="boss-tagline">The seventh Sha. A fight where your own hubris kills the raid.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">Scarred Vale</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">~10 minutes</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">At 30% (burn)</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        Every raider has a <em>Pride</em> resource bar (0–100). Pride is gained
+        from many mechanics — soaking <em>Marks</em>, breaking prisons, dispels,
+        even being too close to other prideful players. At 100 Pride you mind
+        control. <em>Swelling Pride</em> casts periodically, dealing damage scaled to
+        your Pride — low Pride is fine, high Pride explodes you and gives you
+        even more Pride. Manage it carefully, burn at 30%.
+      </p>
+    </div>
+
+    <h3>The Pride System</h3>
+    <p>
+      Pride is the entire fight. Every player should track it. You GAIN Pride from:
+    </p>
+    <ul class="bullets">
+      <li>Being released from a <em>Projection of Pride</em> prison (+25 Pride).</li>
+      <li>Soaking your <em>Mark of Arrogance</em> on your own (vs. having someone else dispel it).</li>
+      <li>Standing in <em>Pool of Pride</em> void zones (low gain, but it adds up).</li>
+      <li>Some Heroic-specific abilities (see below).</li>
+    </ul>
+
+    <h3>Encounter Abilities</h3>
+    <div class="ability">
+      <span class="ability-name">Wounded Pride</span>
+      <span class="ability-desc">Stacking debuff on the tank. <strong>Swap on each application</strong>.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Swelling Pride</span>
+      <span class="ability-desc">Cast every ~45 seconds. Detonates everyone — damage scales with your Pride. At 0–25 Pride: minor. At 75+ Pride: deadly AND it gives you more Pride. Spend Pride downward, not upward.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Mark of Arrogance</span>
+      <span class="ability-desc">A debuff on a player. <strong>Don't dispel it</strong> — let it expire (the player soaks it themselves for the +Pride cost). Only dispel if the player is at 100 Pride risk.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Manifestation of Pride</span>
+      <span class="ability-desc">Add. <strong>Burst it down fast and interrupt</strong>.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Projection of Pride (prison)</span>
+      <span class="ability-desc">Targets a player and locks them in a translucent bubble. Other players step in to break them out — but the rescuer gains +25 Pride. Rotate rescuers.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Gift of the Titans</span>
+      <span class="ability-desc">A buff orb appears periodically. Click it to gain a temporary buff that lets you safely dispel Mark of Arrogance without giving Pride.</span>
+    </div>
+
+    <h3>Phase Strategy</h3>
+    <p>
+      Single-phase fight that ramps into a burn at 30%. The raid must coordinate
+      Pride at all times: low-Pride players soak rescues, dispel Marks, and
+      take the Gift of the Titans. High-Pride players hide from mechanics until
+      they bleed Pride off.
+    </p>
+
+    <h3>Heroic Changes</h3>
+    <ul class="bullets">
+      <li><strong>Self-Reflection</strong>: an extra mechanic where a duplicate of you appears and mirrors your actions. Kill it or it explodes.</li>
+      <li><strong>Aura of Pride</strong>: anyone within 8 yards of a high-Pride player gains Pride from proximity. <strong>Spread out</strong> aggressively.</li>
+      <li>More frequent <em>Swelling Pride</em>.</li>
+    </ul>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>Swap on every <em>Wounded Pride</em> application.</li>
+          <li>Position the boss in the back of the room facing the throne — leaves room for the raid to spread.</li>
+          <li>Don't soak Marks while actively tanking.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Track everyone's Pride — call out high-Pride players before <em>Swelling Pride</em>.</li>
+          <li>Use Gift of the Titans to safely dispel Marks on high-Pride targets.</li>
+          <li>Heavy raid CDs on each <em>Swelling Pride</em> detonation.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Burst <em>Manifestation of Pride</em> adds immediately.</li>
+          <li>Rotate prison rescues — low-Pride player breaks the bubble.</li>
+          <li>Stand behind the boss to maximize Mastery-style buffs and avoid prison spawns from frontals.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="danger">
+      A player hitting 100 Pride gets mind-controlled and will <strong>burst the
+      raid down</strong>. Track it in DBM. If someone is approaching 90, the
+      raid leader should call for them to step into the closest <em>Projection</em>
+      area or take a Gift of the Titans dispel.
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 05 — GALAKRAS                                                         -->
+<!-- ===================================================================== -->
+<article class="boss" id="galakras">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 05 · Gates of Orgrimmar</div>
+    <h2 class="boss-name">Galakras</h2>
+    <p class="boss-tagline">A proto-drake siege. Razorscale veterans will feel at home.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">Gates of Orgrimmar</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">Phase 2 ramping aura</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">Start of Phase 2</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 3H · 5 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        Two-phase fight. Phase 1: kill waves of adds and four mini-bosses on
+        the ground while capturing two towers. Then man both turrets
+        <em>simultaneously</em> to shoot Galakras out of the sky. Phase 2: DPS
+        race on the landed drake while soaking fireballs and managing a
+        stacking damage aura. Lust on phase transition.
+      </p>
+    </div>
+
+    <h3>Phase 1 — The Siege</h3>
+    <p>
+      Waves of Kor'kron adds spawn at the front, with four named mini-bosses
+      appearing on a rough timer. Two towers (left and right) must be
+      cleared and captured by your raid; the capture bar fills as you kill
+      adds inside.
+    </p>
+    <div class="ability">
+      <span class="ability-name">Korgra the Snake</span>
+      <span class="ability-desc">Drops poison clouds. Kite her into clean ground; tank moves her continuously.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Thranok Skullcrusher</span>
+      <span class="ability-desc">Chains a player to himself and casts <em>Skull Cracker</em> — chained player runs away to extend the chain and break it.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Krugruk</span>
+      <span class="ability-desc">Knockback monster. Position him with a wall behind your tank so you're not flung off ledges.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Drakkari Lord Dagryn</span>
+      <span class="ability-desc">Casts <em>Muzzle Spray</em> knockbacks. Tank dances around the tower base to dodge.</span>
+    </div>
+
+    <h3>Tower Capture</h3>
+    <p>
+      Split into two tower teams — usually 1 tank, 1 healer, 2 DPS each (the
+      remaining group stays at the base for spawns). Clear each tower's
+      adds, then a designated player man-the-turret at the top.
+      <strong>Both turrets must fire at the same time</strong> to bring
+      Galakras down.
+    </p>
+
+    <h3>Phase 2 — The Drake Lands</h3>
+    <div class="ability">
+      <span class="ability-name">Flames of Galakrond</span>
+      <span class="ability-desc">Stacking shadow-fire DoT on the tank. <strong>Swap on every application</strong>.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Pulsing Flames</span>
+      <span class="ability-desc">Raid-wide damage aura that ramps over the phase. This is the soft enrage — beat the boss before it kills you.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Flame Breath</span>
+      <span class="ability-desc">Frontal cone. Tank faces away.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Fireball Volley</span>
+      <span class="ability-desc">Targets a player with a meteor — players within range share the damage. <strong>Soak in groups</strong> to split. If only one player is hit, they die.</span>
+    </div>
+
+    <h3>Phase 2 Positioning</h3>
+    <p>
+      Melee stack behind the boss. Ranged in a tight pile 30 yards back.
+      Fireball Volleys land between the two groups — both stacks together
+      can take it without dying. Tanks swap on Flames stacks.
+    </p>
+
+    <h3>Heroic Changes</h3>
+    <ul class="bullets">
+      <li><strong>Faster mini-boss spawns</strong> in Phase 1 — Drakkari Lord can overlap with another miniboss.</li>
+      <li>Phase 2 <em>Pulsing Flames</em> ramps harder. Save raid CDs (Devotion Aura, Spirit Link) for the final 25%.</li>
+      <li>More fireballs in Phase 2 — communicate which group takes which.</li>
+    </ul>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>One tank on each tower team (or one stays at base; coordinate before pull).</li>
+          <li>Phase 2: swap on every <em>Flames</em> application — they hurt fast.</li>
+          <li>Pre-position for Krugruk so you're not knocked off the platform.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Spread across both tower teams — 1H per team in 10-man.</li>
+          <li>Save raid CDs for late Phase 2 — <em>Pulsing Flames</em> wipes raids at high stacks.</li>
+          <li>Top up before each Fireball Volley.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Priority adds: <em>Healing Tide Totems</em> &gt; <em>Banners</em> &gt; <em>Demolishers</em> &gt; trash.</li>
+          <li>Stack tight in your group for Fireball Volleys.</li>
+          <li>Phase 2: tunnel boss; do not chase remaining adds unless they're killing the raid.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tip">
+      Have a ranged DPS or healer click the turret in Heroic — they don't
+      stop their DPS/healing rotation entirely. Hunters with auto-shot work
+      perfectly.
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 06 — IRON JUGGERNAUT                                                  -->
+<!-- ===================================================================== -->
+<article class="boss" id="iron-juggernaut">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 06 · Gates of Orgrimmar</div>
+    <h2 class="boss-name">Iron Juggernaut</h2>
+    <p class="boss-tagline">Goblin engineering at its most lethal. A two-phase mechanical terror.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">Gates of Orgrimmar</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">~10 minutes</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">On Pull</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        Alternates between a 2-minute <em>Assault Phase</em> (mobile, tank
+        swaps on <em>Flame Vents</em>, dodge drill ground effects, detonate
+        crawler mines) and a 1-minute <em>Siege Phase</em> (stationary, raid
+        stacks, kite lasers, dodge mortars). Heroic adds ricocheting sawblades
+        and mortar barrages. Lust on pull.
+      </p>
+    </div>
+
+    <h3>Assault Phase Abilities</h3>
+    <div class="ability">
+      <span class="ability-name">Flame Vents</span>
+      <span class="ability-desc">Frontal cone on the tank, stacking debuff. <strong>Swap at 3–4 stacks</strong>.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Borer Drill</span>
+      <span class="ability-desc">A drill chases a random raid member, leaving a ground spike that damages anyone who steps on it. Kite predictably so other players can avoid the trail.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Crawler Mine</span>
+      <span class="ability-desc">Spawns and crawls toward a player. They beep faster as they near detonation. <strong>Stomp them</strong> (run over them) or they explode the raid. Tanks or immunity classes (Cloak of Shadows rogue) take them.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Mortar Cannon</span>
+      <span class="ability-desc">Red ground circles. Move out before impact.</span>
+    </div>
+
+    <h3>Siege Phase Abilities</h3>
+    <div class="ability">
+      <span class="ability-name">Shock Pulse</span>
+      <span class="ability-desc">Knockback from the boss. Position with a wall behind you or you'll get launched into mortars.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Cutter Laser</span>
+      <span class="ability-desc">A targeted laser tracks one player. <strong>Run it in a predictable arc</strong> away from the raid and away from Explosive Tar patches (laser + tar = pull-ending explosion).</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Seismic Activity</span>
+      <span class="ability-desc">Raid-wide damage tick. Healing CDs every Siege Phase.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Explosive Tar</span>
+      <span class="ability-desc">Pools of tar on the ground. Stay out — when the laser touches them, the room explodes.</span>
+    </div>
+
+    <h3>Phase Strategy</h3>
+    <p>
+      Position the boss on one side of the room from the start so you have
+      runway for kiting laser/drill. Melee always behind the boss to avoid
+      Flame Vents. Ranged + healers spread for Mortar Cannon but stack
+      loosely in Siege Phase for healing efficiency.
+    </p>
+
+    <h3>Heroic Changes</h3>
+    <div class="phase">
+      <span class="phase-label">Heroic Mechanic · Assault Phase</span>
+      <span class="phase-name">Ricochet (sawblades)</span>
+      <p>
+        Sawblades launch and bounce around the room. They <strong>do not
+        cross terrain</strong>, so use the room edges. They become more
+        frequent as the fight progresses.
+      </p>
+    </div>
+    <div class="phase">
+      <span class="phase-label">Heroic Mechanic · Siege Phase</span>
+      <span class="phase-name">Mortar Barrage</span>
+      <p>
+        Many mortar shells rain down. <strong>Stack tightly at the edge of
+        the room after the first Shock Pulse</strong> — once you're at the
+        edge, the barrage targets one tight zone that healers can blanket
+        heal through. Sprawling out causes random deaths.
+      </p>
+    </div>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>Swap on <em>Flame Vents</em> at 3–4 stacks.</li>
+          <li>Stomp Crawler Mines — coordinate so they don't pile into the raid.</li>
+          <li>Position boss so kited mechanics have lanes.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Heavy CDs every Siege Phase for <em>Seismic Activity</em>.</li>
+          <li>Top up before each Mortar Barrage in Heroic.</li>
+          <li>Spread for Mortar Cannon in Assault, stack for Barrage in Siege.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Laser-target kites away from tar AND away from the raid.</li>
+          <li>Melee: always behind the boss. Ranged: ~30 yards back, spread.</li>
+          <li>Stop DPS to stomp mines if assigned tank can't get there.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="danger">
+      <em>Cutter Laser</em> + <em>Explosive Tar</em> = instant wipe. Mark a
+      clear kite path on the floor (a world marker on one side) before the
+      pull and stick to it.
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 07 — KOR'KRON DARK SHAMAN                                             -->
+<!-- ===================================================================== -->
+<article class="boss" id="dark-shaman">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 07 · Valley of Strength</div>
+    <h2 class="boss-name">Kor'kron Dark Shaman</h2>
+    <p class="boss-tagline">Haromm and Kardris — two shamans, one health pool, escalating chaos.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">Valley of Strength (Org)</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">Sub-25% damage buff</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">Pull or sub-25%</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 3H · 5 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        Two bosses (Haromm and Kardris) sharing a health bar, each riding a
+        mount (Darkfang and Bloodclaw — kill these first). The fight gets
+        progressively worse: new abilities unlock at 85%, 65%, and 50%. At
+        25%, both bosses gain +25% damage and haste. Tank them together;
+        avoid the increasing pile of ground effects.
+      </p>
+    </div>
+
+    <h3>The Bosses</h3>
+    <div class="ability">
+      <span class="ability-name">Earthbreaker Haromm</span>
+      <span class="ability-desc">Casts <em>Froststorm Strike</em> on his tank — stacking debuff, swap on each application. Drops <em>Ashen Wall</em> ground effects.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Wavebinder Kardris</span>
+      <span class="ability-desc">Drops <em>Foul Stream</em> water trails. Summons <em>Foul Geysers</em> that spawn Foul Slime adds.</span>
+    </div>
+
+    <h3>Health-Threshold Abilities</h3>
+    <div class="phase">
+      <span class="phase-label">100% – 85%</span>
+      <span class="phase-name">Opening Phase</span>
+      <p>
+        Kill the mounts (Darkfang, Bloodclaw — very low HP). Tank both bosses
+        together on the edge of the room for cleave. Manage <em>Froststorm
+        Strike</em> tank swaps. Avoid <em>Toxic Mist</em> from Kardris.
+      </p>
+    </div>
+    <div class="phase">
+      <span class="phase-label">85% – 65%</span>
+      <span class="phase-name">Adds Unlock</span>
+      <p>
+        <em>Toxic Storm</em> begins — green clouds wander the arena. Don't get
+        clipped. Healing demands begin to rise.
+      </p>
+    </div>
+    <div class="phase">
+      <span class="phase-label">65% – 50%</span>
+      <span class="phase-name">Foul Slimes</span>
+      <p>
+        <em>Foul Geyser</em> spawns Foul Slime adds. They explode if killed in
+        melee. <strong>Kite them</strong> with ranged DPS or Brewmaster Monks
+        (range threat). Avoid <em>Foul Stream</em> trails.
+      </p>
+    </div>
+    <div class="phase">
+      <span class="phase-label">50% – 25%</span>
+      <span class="phase-name">Falling Ash</span>
+      <p>
+        <em>Ashen Wall</em> drops big diagonal walls of ash you must walk
+        around. <em>Falling Ash</em> rains down — raid CDs every cast.
+        The arena gets crowded — keep bosses moving.
+      </p>
+    </div>
+    <div class="phase">
+      <span class="phase-label">Sub-25%</span>
+      <span class="phase-name">Berserk</span>
+      <p>
+        Both bosses gain +25% damage and haste. Defensive CDs from everyone.
+        Lust here if you didn't lust on pull.
+      </p>
+    </div>
+
+    <h3>Heroic Changes</h3>
+    <ul class="bullets">
+      <li><strong>Iron Tomb</strong>: rooted debuff that requires a friendly attack to break — interrupt your friend, basically.</li>
+      <li>Faster <em>Foul Slime</em> spawns; ranged kite tools become essential.</li>
+      <li><em>Falling Ash</em> raid damage is significantly higher; mandatory raid CDs each cast.</li>
+    </ul>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>Tank both bosses together near the room edge for cleave.</li>
+          <li>Swap on each <em>Froststorm Strike</em>.</li>
+          <li>Move bosses constantly to keep the floor clean of effects.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Heavy CDs each <em>Falling Ash</em> cast (50% onwards).</li>
+          <li>Spot-heal Iron Tomb victims (Heroic).</li>
+          <li>Save personal CDs for the sub-25% berserk.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Kill mounts first.</li>
+          <li>Ranged: kite Foul Slimes — don't melee them, they cleave.</li>
+          <li>Break friends out of Iron Tombs (Heroic).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tip">
+      The room becomes more cramped over time. Plan to move bosses
+      counter-clockwise around the perimeter so you always have clean ground.
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 08 — GENERAL NAZGRIM                                                  -->
+<!-- ===================================================================== -->
+<article class="boss" id="nazgrim">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 08 · Cleft of Shadow</div>
+    <h2 class="boss-name">General Nazgrim</h2>
+    <p class="boss-tagline">A warrior boss with stances, rage, and waves of his loyal Kor'kron.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">Cleft of Shadow</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">~10 minutes</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">During Berserker Stance</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 2-3H · 5-6 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        Nazgrim has a Rage bar. Rage triggers a special ability at 100. He also
+        cycles stances: <em>Defensive</em> (takes less damage, don't hit him),
+        <em>Berserker</em> (takes <strong>+25% damage</strong> — burst window).
+        Adds spawn in waves: Warshamans heal, Arcweavers cast, Assassins
+        backstab, Ironblades melee. Kill order matters. Lust on Berserker Stance.
+      </p>
+    </div>
+
+    <h3>Stances and Rage</h3>
+    <p>
+      Nazgrim has three stances, cycling every ~30 seconds. He generates Rage
+      from taking damage and from raid mistakes. At 100 Rage he casts a
+      stance-specific empowered ability.
+    </p>
+    <div class="ability">
+      <span class="ability-name">Defensive Stance</span>
+      <span class="ability-desc">Takes reduced damage AND reflects 100% of melee damage back. <strong>Only the active tank hits him</strong>. DPS focus adds or wait.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Battle Stance</span>
+      <span class="ability-desc">Normal damage. DPS the boss.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Berserker Stance</span>
+      <span class="ability-desc">Takes +25% damage. Burst window. Use cooldowns.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">100 Rage ability</span>
+      <span class="ability-desc">Defensive → <em>Defensive Stance</em> reflect; Battle → <em>Heroic Shockwave</em> (cone AoE, spread); Berserker → <em>Bonecracker</em> (heavy bleed).</span>
+    </div>
+
+    <h3>Adds</h3>
+    <p>Adds spawn in waves throughout. <strong>Kill order: Warshaman → Arcweaver → Assassin → Ironblade.</strong></p>
+    <div class="ability">
+      <span class="ability-name">Kor'kron Warshaman</span>
+      <span class="ability-desc">Heals Nazgrim and other adds with <em>Chain Heal</em>. <strong>Interrupt and kill first</strong>. Drops <em>Healing Tide Totem</em> — kill the totem immediately.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Kor'kron Arcweaver</span>
+      <span class="ability-desc">Casts <em>Magistrike</em> bouncing chain spells. Interrupt and kill second.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Kor'kron Assassin</span>
+      <span class="ability-desc">Stealthed, drops poison clouds, backstabs. Hunters can <em>Flare</em>; otherwise CC and burst.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Kor'kron Ironblade</span>
+      <span class="ability-desc">Trash melee. Tank pickup and cleave down.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Kor'kron Banner</span>
+      <span class="ability-desc">Drops occasionally — buffs all nearby adds with War Song. <strong>Kill instantly</strong> when it appears.</span>
+    </div>
+
+    <h3>Tank Mechanics</h3>
+    <div class="ability">
+      <span class="ability-name">Sundering Blow</span>
+      <span class="ability-desc">Stacking debuff on the tank — armor shred. Swap at 2+ stacks.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Ravager (Heroic)</span>
+      <span class="ability-desc">Nazgrim throws a weapon that spins on the floor. Don't walk through it — it gives him Rage.</span>
+    </div>
+
+    <h3>Heroic Changes</h3>
+    <ul class="bullets">
+      <li><strong>Execute</strong>: Below 20% boss HP, casts <em>Execute</em> on the tank every ~15 seconds. <strong>Mandatory tank cooldowns</strong> for each one.</li>
+      <li><strong>Snipers</strong>: Range adds that fixate a player and cast <em>Multi-Shot</em> (cone). Face them away from the raid.</li>
+      <li>More frequent add waves; the soft enrage is add accumulation.</li>
+    </ul>
+
+    <h3>Phase Strategy / Final 10%</h3>
+    <p>
+      Below 10%, the strategy changes: <strong>ignore adds, lust, kite them
+      to the back of the room</strong>. The boss is the only thing that
+      matters. If you burn him fast enough, the adds never close the gap.
+    </p>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>Swap on 2+ <em>Sundering Blow</em> stacks.</li>
+          <li>Off-tank picks up Ironblades and Snipers.</li>
+          <li>Tank CDs on EVERY <em>Execute</em> in Heroic.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Heavy AoE healing during add waves (cleave damage from Magistrike).</li>
+          <li>CDs on <em>Heroic Shockwave</em> and <em>Bonecracker</em>.</li>
+          <li>Top up tank pre-<em>Execute</em>.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li><strong>Stop hitting Nazgrim in Defensive Stance</strong> — it reflects damage and gives him Rage.</li>
+          <li>Strict add priority: Warshaman → Arcweaver → Assassin → Ironblade. Banner = instant.</li>
+          <li>Lust on Berserker Stance for the +25% damage.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="danger">
+      Hitting Nazgrim during Defensive Stance is the #1 cause of new-group
+      wipes. <strong>Stop your rotation</strong>. Mark it on a /raid macro:
+      "STANCE — STOP DPS".
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 09 — MALKOROK                                                         -->
+<!-- ===================================================================== -->
+<article class="boss" id="malkorok">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 09 · The Underhold</div>
+    <h2 class="boss-name">Malkorok</h2>
+    <p class="boss-tagline">An ogre fueled by Y'Shaarj's blood. A pure execution test.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">The Underhold</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">~7 minutes (tight)</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">On Pull</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 3H · 5 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        Two phases. <em>Might of the Kor'kron</em> (2 min): players have
+        absorb-shields instead of normal healing — dodge frontals, soak
+        <em>Imploding Energy</em> orbs to clear them. <em>Blood Rage</em> (20
+        sec): stack and split heavy damage. Tank swap on <em>Fatal Strike</em>.
+        Tight enrage — Lust on pull. Heroic adds Living Corruption and Orbs of
+        Corruption.
+      </p>
+    </div>
+
+    <h3>Might of the Kor'kron Phase (2 minutes)</h3>
+    <div class="ability">
+      <span class="ability-name">Ancient Miasma (absorb shield)</span>
+      <span class="ability-desc">Healers cannot direct-heal. Instead they build up <em>Ancient Miasma</em> shields on each player. The shield is what soaks damage. <strong>Healers spam to keep everyone shielded</strong>. Take damage → eat shield → if no shield, you die.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Arcing Smash</span>
+      <span class="ability-desc">Frontal cone. Tank faces away; rest of raid stays out of the front.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Breath of Y'Shaarj</span>
+      <span class="ability-desc">Marks zones on the ground. Get out before impact — they leave persistent void zones.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Imploding Energy</span>
+      <span class="ability-desc">Spawns void orbs that must be soaked by players. The soaker takes the damage (absorbed by shield). Pre-assign soakers — one per orb. If unsoaked, raid-wide damage.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Fatal Strike</span>
+      <span class="ability-desc">Tank attack with a stacking debuff. <strong>Swap at 2–3 stacks</strong>.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Seismic Slam</span>
+      <span class="ability-desc">AoE around the boss. Stay spread 5+ yards.</span>
+    </div>
+
+    <h3>Blood Rage Phase (20 seconds)</h3>
+    <p>
+      Boss casts <em>Blood Rage</em>. Heavy raid-wide damage. <strong>Stack
+      tightly</strong> so the damage is shared evenly. The Ancient Miasma
+      shield system continues. Healers go all-out shielding.
+    </p>
+    <div class="ability">
+      <span class="ability-name">Displaced Energy</span>
+      <span class="ability-desc">Debuff during Blood Rage. The affected player explodes when it expires/dispelled. <strong>Move 8+ yards from the raid</strong> before it pops.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Relentless Assault</span>
+      <span class="ability-desc">Each Blood Rage Phase, Malkorok gains a permanent damage buff. This is the soft enrage — kill him in 3 Blood Rage cycles or it spirals.</span>
+    </div>
+
+    <h3>Heroic Changes</h3>
+    <ul class="bullets">
+      <li><strong>Living Corruption</strong>: adds spawn periodically. Kill them fast or they explode.</li>
+      <li><strong>Orbs of Corruption</strong>: float around. Use immunities (Cloak of Shadows, Ice Block, Divine Shield, Hand of Protection) to clear them. They cause heavy raid damage if untouched.</li>
+      <li>During Blood Rage, raid may need to move <em>through</em> Malkorok to avoid stuck rooted Displaced Energy players.</li>
+    </ul>
+
+    <h3>Phase Strategy</h3>
+    <p>
+      The fight has a brutal effective enrage built into <em>Relentless Assault</em>.
+      Each Blood Rage Phase makes damage worse. <strong>Lust on pull</strong> and
+      try to push enough damage to limit yourself to 3 Blood Rage cycles.
+    </p>
+    <p>
+      Pre-assign Imploding Energy soakers. Pre-assign Orb clearers (immunity
+      classes). Healers should rotate cooldowns by Blood Rage cycle.
+    </p>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>Swap on 2–3 <em>Fatal Strike</em> stacks.</li>
+          <li>Face boss away from raid for <em>Arcing Smash</em>.</li>
+          <li>Survive Blood Rage with personal CDs — shields don't protect tanks reliably.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li><strong>Spam Ancient Miasma shields</strong>. Prioritize soakers and tanks.</li>
+          <li>Disc Priests and Resto Shamans excel here.</li>
+          <li>Save raid CDs (Spirit Link, Tranquility) for Blood Rage.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Soak your assigned <em>Imploding Energy</em> orb.</li>
+          <li>Move 8+ yards out for <em>Displaced Energy</em> before it pops.</li>
+          <li>Immunity classes clear <em>Orbs of Corruption</em> (Heroic).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="danger">
+      Healers cannot heal normally — they generate absorb shields only. If
+      someone takes damage and has no shield, they die. <strong>Shield
+      uptime is the entire fight</strong>.
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 10 — SPOILS OF PANDARIA                                               -->
+<!-- ===================================================================== -->
+<article class="boss" id="spoils">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 10 · Kor'kron Barracks</div>
+    <h2 class="boss-name">Spoils of Pandaria</h2>
+    <p class="boss-tagline">No boss. A timed crate-clearing race against two factions.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">Kor'kron Barracks</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">Energy timer (per side)</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">Final quadrants if tight</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 3H · 5 DPS (1 of each per side)</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        Split the raid into two teams: one fights Mogu adds, one fights Mantid
+        adds, in mirrored arenas. Open crates to spawn adds; killing adds
+        builds an Energy bar to 50. Then a lever opens the next quadrant. Race
+        the timer. Open <em>Pandaren Crates</em> for raid-wide buffs.
+      </p>
+    </div>
+
+    <h3>How It Works</h3>
+    <p>
+      The room has two halves connected by a central corridor: <strong>Mogu
+      side (right)</strong> and <strong>Mantid side (left)</strong>. Each
+      half has a series of quadrants. In each quadrant, three crate types
+      sit on the floor:
+    </p>
+    <ul class="bullets">
+      <li><strong>Lightweight</strong>: spawns 1 add. Quick energy, low risk.</li>
+      <li><strong>Stout</strong>: spawns 2 adds. Solid energy.</li>
+      <li><strong>Massive</strong>: spawns several adds. High energy, high risk.</li>
+      <li><strong>Pandaren</strong>: spawns a friendly NPC. Granting a raid-wide buff (Brewmaster: tank damage buff; Mistweaver: healer procs; Windwalker: DPS procs). <strong>Open these FIRST</strong>.</li>
+    </ul>
+    <p>
+      Killing adds fills the Energy bar to 50 per quadrant. At 50, you can
+      pull the lever to open the next quadrant. <strong>Both sides must
+      complete simultaneously</strong> or the laggard side wipes the raid.
+    </p>
+
+    <h3>Mogu Side Mechanics</h3>
+    <div class="ability">
+      <span class="ability-name">Mogu Shadow Ritualists</span>
+      <span class="ability-desc">Cast <em>Forbidden Magic</em>. Interrupt every cast.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Mogu Elders + Stone Statues</span>
+      <span class="ability-desc">Spawn Stone Statues. Kill the statues — they buff the Elder otherwise.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Anima Golems</span>
+      <span class="ability-desc">Cast <em>Matter Scramble</em> beams between two players. Both stand in BOTH beams (yes, really) to share the damage.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Crimson Reconstitution (Heroic)</span>
+      <span class="ability-desc">A healing pool on the floor for adds. Tank drags mobs out; standing in it damages players in Heroic.</span>
+    </div>
+
+    <h3>Mantid Side Mechanics</h3>
+    <div class="ability">
+      <span class="ability-name">Set to Blow</span>
+      <span class="ability-desc">Player gets a debuff and drops bombs on the floor that will detonate. Drop them in empty space; don't trigger them.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Amber Priest</span>
+      <span class="ability-desc">Casts <em>Residue</em> debuff. Dispel.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Wind Wielder</span>
+      <span class="ability-desc">Casts <em>Rage of the Empress</em>. Dispel; interrupt.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Kor'thik Warcaller</span>
+      <span class="ability-desc">Enrages when low HP. Kite during enrage.</span>
+    </div>
+
+    <h3>Heroic Changes</h3>
+    <ul class="bullets">
+      <li><strong>Unstable Sparks</strong>: spawn when crates are cleared. Ranged DPS focus them down immediately — they explode the raid otherwise.</li>
+      <li><strong>Crimson Reconstitution</strong>: now damages players standing in it (not just healing).</li>
+      <li>Tighter energy/timer windows. Cleave crates open in pairs (lightweight + stout) for efficient energy generation.</li>
+    </ul>
+
+    <h3>Strategy</h3>
+    <p>
+      <strong>Split raids cleanly</strong>: 1 tank, 1 healer, 2–3 DPS per
+      side. Each side needs a designated caller. Pandaren crates open first.
+      Calculate energy in advance — 2 Massive crates = 28 Energy, then a
+      Stout (6) gets you near. Don't overpull and overshoot energy with the
+      next quadrant's adds.
+    </p>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>One per side. Strong AoE threat.</li>
+          <li>Mogu tank pulls mobs OUT of Crimson Reconstitution.</li>
+          <li>Mantid tank kites Enraged Warcallers.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Dispel-heavy specs preferred (Resto Druid, Holy Priest).</li>
+          <li>Watch for <em>Residue</em> (Mantid) and <em>Torment</em> (Mogu).</li>
+          <li>3rd healer floats — covers whichever side is rougher.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Ranged kill Unstable Sparks (Heroic) on sight.</li>
+          <li>Interrupters lock down Shadow Ritualists and Wind Wielders.</li>
+          <li>Cleave lightweight crates alongside larger ones.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tip">
+      Coordinate lever pulls with the other side. Whichever side hits 50
+      Energy first <strong>waits</strong> at the lever for the other side
+      to be ready, then both pull together.
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 11 — THOK THE BLOODTHIRSTY                                            -->
+<!-- ===================================================================== -->
+<article class="boss" id="thok">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 11 · The Menagerie</div>
+    <h2 class="boss-name">Thok the Bloodthirsty</h2>
+    <p class="boss-tagline">A devilsaur with three captives — he eats them, and steals their power.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">The Underhold (Menagerie)</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">Phase 2 stacking</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">On Pull</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 3H · 5 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        Two-phase fight. <strong>Phase 1</strong>: tank Thok, manage his
+        stacking attack speed, dodge his frontals. <strong>Phase 2</strong>: he
+        fixates on raid members; kite him to a Kor'kron Jailer NPC; kill the
+        jailer to free one of three captives (<em>Akolik</em>, <em>Gorai</em>,
+        <em>Montak</em>); Thok eats the captive and gains their abilities,
+        cycling back to Phase 1 with new mechanics. After all three are eaten,
+        you're locked in Phase 2 forever — wipe. Kill him before that.
+      </p>
+    </div>
+
+    <h3>Phase 1</h3>
+    <div class="ability">
+      <span class="ability-name">Bloodthirsty (haste)</span>
+      <span class="ability-desc">Thok's attack speed ramps over the phase. Tanks die faster as it stacks. Healers gear up.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Acid Breath</span>
+      <span class="ability-desc">Frontal cone. Tank faces away.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Tail Lash</span>
+      <span class="ability-desc">Rear cone. Don't stand behind him.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Deafening Screech</span>
+      <span class="ability-desc">Channeled spell. <strong>Do not cast spells during this</strong> — interrupted casts heal Thok and damage the caster.</span>
+    </div>
+
+    <h3>Phase 2</h3>
+    <div class="ability">
+      <span class="ability-name">Fixate</span>
+      <span class="ability-desc">Thok runs at random players. He's slow but deadly. <strong>Kite him in a planned circuit</strong>.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Kor'kron Jailer NPC</span>
+      <span class="ability-desc">A jailer guards each captive. Kill the jailer to free a captive. Thok will eat the freed captive, restoring Phase 1.</span>
+    </div>
+
+    <h3>The Three Captives (Phase 1 Variants)</h3>
+    <div class="phase">
+      <span class="phase-label">After eating Akolik</span>
+      <span class="phase-name">Acid Breath empowered</span>
+      <p>
+        Phase 1 abilities all gain acid components. Tank takes acid DoTs.
+        Raid stacks for cleave healing.
+      </p>
+    </div>
+    <div class="phase">
+      <span class="phase-label">After eating Gorai</span>
+      <span class="phase-name">Ice Tombs</span>
+      <p>
+        Thok periodically encases players in <em>Ice Tombs</em>. <strong>Break
+        them out fast</strong> — the trapped player takes huge damage.
+        Raid stacks for AoE break.
+      </p>
+    </div>
+    <div class="phase">
+      <span class="phase-label">After eating Montak</span>
+      <span class="phase-name">Fire void zones</span>
+      <p>
+        Fiery ground effects appear. <strong>Spread out</strong> — opposite of
+        the other two variants.
+      </p>
+    </div>
+
+    <h3>Captive Order (Heroic)</h3>
+    <p>
+      Most groups choose <strong>Akolik first</strong> (easiest variant),
+      then <strong>Gorai</strong>, leaving Montak for last (hardest, but the
+      fight should be near-dead). Pre-plan and stick to it.
+    </p>
+
+    <h3>Heroic Changes</h3>
+    <ul class="bullets">
+      <li>Higher Bloodthirsty haste growth — Phase 1s must be shorter.</li>
+      <li>Phase 2 fixates faster.</li>
+      <li>Captive abilities are more punishing — ice tombs hit harder, fire pools persist longer.</li>
+    </ul>
+
+    <h3>Phase Strategy</h3>
+    <p>
+      Lust on pull to burn through Phase 1 cleanly. The raid's job is to
+      <strong>extend Phase 1 with defensive cooldowns</strong> (Bloodthirsty
+      ramps so DPS does the most early). Phase 2 is short — kite cleanly,
+      kill the jailer, get back to Phase 1.
+    </p>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>Face Thok carefully — frontal cone AND tail lash.</li>
+          <li>Swap on debuff stacks if you get them (variant-specific).</li>
+          <li>Pre-plan Phase 2 fixate kiting paths.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Do NOT cast during <em>Deafening Screech</em>.</li>
+          <li>Save raid CDs for high Bloodthirsty stacks.</li>
+          <li>Burst-heal ice tomb victims (Gorai variant).</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Burst Phase 1 hard while Bloodthirsty stacks are low.</li>
+          <li>Phase 2: switch to the Kor'kron Jailer immediately.</li>
+          <li>Break ice tombs in Gorai variant; spread in Montak variant.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="danger">
+      Three captives = three Phase 1s = three soft enrages. If you can't
+      kill Thok before the third Phase 2 ends, you wipe. Track your kill
+      timeline against the captive count.
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 12 — SIEGECRAFTER BLACKFUSE                                           -->
+<!-- ===================================================================== -->
+<article class="boss" id="blackfuse">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 12 · The Siegeworks</div>
+    <h2 class="boss-name">Siegecrafter Blackfuse</h2>
+    <p class="boss-tagline">Goblin assembly-line warfare. The hardest fight in the raid.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">The Siegeworks</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">~10 minutes</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">On Pull</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 3H · 5 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        A conveyor belt at the edge of the room delivers four types of weapon
+        adds. A dedicated conveyor team kills <strong>one weapon per wave</strong>
+        before it reaches the boss (he gets empowered if any reach him). The
+        main raid tanks the boss and an <em>Automated Shredder</em> off-boss,
+        dodges sawblades, dodges shockwaves, kites lasers. Universally
+        regarded as the toughest mechanical fight in Siege.
+      </p>
+    </div>
+
+    <h3>Encounter Layout</h3>
+    <p>
+      The room is rectangular with a conveyor belt along one long edge.
+      Weapons travel along it. Where they reach the end without being killed,
+      Blackfuse <em>overcharges</em> — empowering whatever variants he uses
+      afterwards. The conveyor belt has a <em>Matter Purification Beam</em>
+      that will instantly kill anyone who touches it on the belt.
+    </p>
+
+    <h3>The Four Weapons</h3>
+    <div class="ability">
+      <span class="ability-name">Crawler Mine</span>
+      <span class="ability-desc">Walking bombs. <strong>Highest priority kill</strong>. They blow up the raid if they leave the belt. Stun/snare them, focus down.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Laser Turret</span>
+      <span class="ability-desc">Targets a player with a laser. The laser must be <strong>kited away from the raid</strong>. Heroic: rotating fire rings.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Missile Turret</span>
+      <span class="ability-desc">Fires <em>Shockwave Missile</em>s with orange ground indicators. Move out.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Electromagnet</span>
+      <span class="ability-desc">Pulls sawblades toward it. Useful — pulls sawblades off the floor. Don't kill it every wave; rotate so sawblades get cleared.</span>
+    </div>
+
+    <h3>Conveyor Belt Strategy</h3>
+    <p>
+      Assign <strong>2 DPS to the belt</strong> (alternate waves — a 60s
+      debuff prevents reuse). They jump onto the belt, burst one weapon,
+      jump off. Hunters can <em>Disengage</em> back off the belt cleanly.
+      Priority each wave:
+    </p>
+    <ul class="bullets">
+      <li><strong>Crawler Mines always die first</strong>. They're the most disruptive.</li>
+      <li>Let an Electromagnet through occasionally to clear sawblades.</li>
+      <li>Avoid letting two Laser Turrets through back-to-back in Heroic.</li>
+    </ul>
+
+    <h3>Boss Mechanics</h3>
+    <div class="ability">
+      <span class="ability-name">Electrostatic Charge</span>
+      <span class="ability-desc">Stacking debuff on the tank. <strong>Swap on stacks</strong>.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Automated Shredder</span>
+      <span class="ability-desc">Mini-boss that off-tank kites <strong>35+ yards from Blackfuse</strong>. If they overlap, the Shredder heals the boss.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Sawblades</span>
+      <span class="ability-desc">Periodically launched, leave persistent ground trails. Force the raid to slowly migrate.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Shockwave Missile</span>
+      <span class="ability-desc">From Missile Turrets — orange indicator, move out.</span>
+    </div>
+
+    <h3>Heroic Changes</h3>
+    <ul class="bullets">
+      <li><strong>Overcharged adds</strong>: when a weapon reaches the boss, it stays as an empowered variant on him. Splitting Crawler Mines, ring-firing Laser Turrets, etc. Mistakes compound.</li>
+      <li>Tighter conveyor timing — Crawler Mines spawn faster.</li>
+      <li>Mortar Cannon's red zones are larger.</li>
+    </ul>
+
+    <h3>Phase Strategy</h3>
+    <p>
+      The boss has no phases. The fight is a <strong>logistical puzzle</strong>:
+      manage two parallel demands (belt team + main raid) while sawblades
+      slowly compress your usable space. Tank the boss in the back corner so
+      you can drift forward as sawblades accumulate.
+    </p>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>Main tank: Blackfuse, in the back corner, swap on Electrostatic stacks.</li>
+          <li>Off-tank: kite Automated Shredder 35+ yards from boss.</li>
+          <li>Plan your migration as sawblades accumulate.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Heavy raid healing — frequent AoE damage from missiles and laser kites.</li>
+          <li>Pay attention to belt team — they spike in damage during their wave.</li>
+          <li>Disc Priest shields excel here.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>2 belt DPS (mobile classes preferred — Hunter, Mage, Rogue).</li>
+          <li>Laser-targeted DPS kite the laser <em>away from sawblades and raid</em>.</li>
+          <li>Tunnel boss between belt waves; never let the boss healing get out of hand.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tip">
+      This is the boss where pre-pull diagrams matter. Mark world markers on
+      the floor: belt team jump-on point, shredder kite zone, laser kite arc,
+      sawblade safe zones. Verbal calls during the pull aren't enough.
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 13 — PARAGONS OF THE KLAXXI                                           -->
+<!-- ===================================================================== -->
+<article class="boss" id="klaxxi">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 13 · Chamber of the Paragons</div>
+    <h2 class="boss-name">Paragons of the Klaxxi</h2>
+    <p class="boss-tagline">Nine bosses. You fight three at a time. They keep coming.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">Chamber of the Paragons</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">~12 minutes</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">On Pull (burn Skeer)</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 3H · 5 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        Nine Klaxxi bosses, but only three are active at once. Kill one →
+        another joins. Each dead Paragon leaves a <strong>corpse buff</strong>
+        the raid can pick up. Order matters. Heroic order:
+        <em>Skeer → Rik'kal → Korven → Iyyokuk → Ka'roz → Hisek → Xaril →
+        Kaz'tik → Kil'ruk</em>. Long fight, encyclopedic in mechanics.
+      </p>
+    </div>
+
+    <h3>How the Encounter Works</h3>
+    <p>
+      The fight begins with three active Paragons. When you kill one, the
+      next from a fixed order activates. The dead one leaves a <em>corpse</em>
+      that any player can click for a unique buff — these are critical to
+      progress.
+    </p>
+
+    <h3>The Paragons (Heroic Kill Order)</h3>
+    <div class="ability">
+      <span class="ability-name">1. Kaz'tik the Manipulator → kill SKEER first</span>
+      <span class="ability-desc">No, you fight Skeer first. Skeer drops Bloods that must be killed. <strong>Lust on Skeer</strong>.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Skeer the Bloodseeker</span>
+      <span class="ability-desc">Drops <em>Blood</em> adds. Tank debuff. Burst him first with Lust.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Rik'kal the Dissector</span>
+      <span class="ability-desc">Casts <em>Injection</em>: stacking debuff on tank. Summons <em>Amber Parasites</em> — kill them fast.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Hisek the Swarmkeeper</span>
+      <span class="ability-desc">Casts <em>Aim</em>: a charging line attack — ranged stack on the line to share damage; line takes <strong>~3 sec to charge</strong>, must position. <em>Sonic Discharge</em>: dispel.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Korven the Prime</span>
+      <span class="ability-desc"><em>Encase in Amber</em>: locks a player in amber. Free them by attacking the block. <em>Hewn</em> tank debuff.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Iyyokuk the Lucid</span>
+      <span class="ability-desc">Drops <em>Fiery Edge</em> — spread to avoid stacking damage. <em>Calculation</em>: math puzzle, players need to be in specific groupings.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Ka'roz the Locust</span>
+      <span class="ability-desc"><em>Whirling</em>: spinning slash damage; avoid stacking. Gives <em>Strong Legs</em> buff that lets the raid break Amber blocks.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Xaril the Poisoned Mind</span>
+      <span class="ability-desc">Three poison colors (red/blue/yellow): <strong>each demands a different reaction</strong> — red = move, blue = stack, yellow = spread. Healers must recognize the color and call out.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Kaz'tik the Manipulator</span>
+      <span class="ability-desc"><em>Mesmerize</em>: charms players. Use stuns to break. <em>Hungry Kunchong</em>: pet, kill during Mesmerize.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Kil'ruk the Wind-Reaver</span>
+      <span class="ability-desc">Final boss. <em>Death from Above</em>: leap targeting a player — spread. <em>Reave</em>: tank cleave.</span>
+    </div>
+
+    <h3>Corpse Buffs (Critical)</h3>
+    <p>
+      Each dead Paragon leaves a buff. Assign these intelligently:
+    </p>
+    <ul class="bullets">
+      <li><strong>Ingenious</strong> (from Iyyokuk) — healers love it.</li>
+      <li><strong>Master of Amber</strong> (from Korven) — tanks for damage reduction.</li>
+      <li><strong>Strong Legs</strong> (from Ka'roz) — DPS for movement to break amber blocks.</li>
+      <li><strong>Cyclone</strong> (from Ka'roz pre-death) — get out before he dies.</li>
+    </ul>
+
+    <h3>Heroic Changes</h3>
+    <ul class="bullets">
+      <li><strong>Strict kill order</strong>: deviations from Skeer → Rik'kal → Korven → Iyyokuk → Ka'roz → Hisek → Xaril → Kaz'tik → Kil'ruk make later combinations brutal.</li>
+      <li><strong>Rapid Fire</strong> (Hisek): faster Aim casts.</li>
+      <li>Active paragon abilities don't stop while you're killing others — managing 3-at-a-time mechanics late-fight is the test.</li>
+    </ul>
+
+    <h3>Phase Strategy</h3>
+    <p>
+      This is the longest fight in the instance. <strong>Pace yourself.</strong>
+      Lust on Skeer (first kill) for momentum. The middle paragons (Korven,
+      Iyyokuk, Ka'roz) are about pure mechanic execution. The final
+      paragons (Xaril through Kil'ruk) demand peak coordination — by then,
+      the raid is tired, so simplifying assignments and pre-calling each
+      mechanic is essential.
+    </p>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>Swap on every Paragon's tank debuff (each has one).</li>
+          <li>Pick up adds (Bloods, Parasites, Kunchongs) — they multiply.</li>
+          <li>Take Master of Amber corpse buff for damage reduction.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Dispel Sonic Discharge, Diminish, Xaril's poisons.</li>
+          <li>Track ALL active paragon timers — heavy raid damage stacks across them.</li>
+          <li>Take Ingenious corpse buff.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Follow the kill order; don't tunnel a single boss.</li>
+          <li>Burst adds (Bloods, Amber Parasites, Kunchongs) immediately.</li>
+          <li>Use Strong Legs to break Amber prisons.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tip">
+      Print out the kill order. Tape it to your monitor. Call each transition
+      out loud: "SKEER DEAD, RIK'KAL ACTIVE — TANK PICK UP PARASITES".
+    </div>
+
+  </div>
+</article>
+
+<!-- ===================================================================== -->
+<!-- 14 — GARROSH HELLSCREAM                                               -->
+<!-- ===================================================================== -->
+<article class="boss" id="garrosh">
+  <header class="boss-header">
+    <div class="boss-number">Encounter 14 · The Inner Sanctum</div>
+    <h2 class="boss-name">Garrosh Hellscream</h2>
+    <p class="boss-tagline">The Warchief, fed by the heart of an Old God. The grand finale.</p>
+    <div class="boss-meta">
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Wing</span>
+        <span class="boss-meta-value">Inner Sanctum / Vision of Stormwind</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Enrage</span>
+        <span class="boss-meta-value">Phase 4 ramping</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Bloodlust</span>
+        <span class="boss-meta-value">Phase 4 (Heroic)</span>
+      </div>
+      <div class="boss-meta-item">
+        <span class="boss-meta-label">Composition</span>
+        <span class="boss-meta-value">2T · 3H · 5 DPS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="boss-body">
+
+    <div class="summary">
+      <h3>The Summary</h3>
+      <p>
+        A four-phase fight (Heroic gets a bonus Phase 4 in a ruined Stormwind).
+        <strong>Phase 1</strong>: tank Garrosh, kill adds, use Iron Stars
+        against him. <strong>Phases 2/3</strong>: alternate between fighting
+        Garrosh in the real world and the Realm of Y'Shaarj where you slow
+        his power. Mind controls, whirlwinds, mounting raid damage.
+        <strong>Heroic Phase 4</strong>: transported to ruined Stormwind for
+        the final burn — Iron Star kiting, Malice soaking, no margin for
+        error. Lust on Phase 4. Trinket: the Kor'kron Juggernaut mount.
+      </p>
+    </div>
+
+    <h3>Phase 1 — Garrosh and Iron Stars (100% → 10%)</h3>
+    <div class="ability">
+      <span class="ability-name">Desecrate</span>
+      <span class="ability-desc">Periodically Garrosh casts <em>Desecrate</em> on a player, leaving a desecrated weapon on the floor. <strong>Don't stand on it</strong> — long-lasting void zone.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Annihilate</span>
+      <span class="ability-desc">Frontal cleave. Melee stay behind boss.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Iron Stars</span>
+      <span class="ability-desc">Giant rolling Iron Stars cross the room. <strong>Use them</strong>: knock them into adds or into Garrosh himself (huge damage). Avoid getting hit yourself. Heroic: triggered when 4+ players group up.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Kor'kron Warbringers</span>
+      <span class="ability-desc">Adds. Off-tank picks up, raid cleaves them down.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Wolf Riders</span>
+      <span class="ability-desc">Adds that cast <em>Chain Lightning</em>. <strong>Do NOT interrupt</strong> — interrupting triggers a damage buff. Just kill them; the cast is weak.</span>
+    </div>
+
+    <h3>Phase Transitions (Realm of Y'Shaarj)</h3>
+    <p>
+      At 10%, Garrosh becomes invulnerable, heals to full, and starts
+      absorbing the Heart of Y'Shaarj. The raid alternates between two
+      states:
+    </p>
+    <div class="phase">
+      <span class="phase-label">Real World</span>
+      <span class="phase-name">Fight Garrosh, suffer escalation</span>
+      <p>
+        Garrosh casts increasingly damaging mechanics each cycle. Adds keep
+        spawning. Mind controls begin.
+      </p>
+    </div>
+    <div class="phase">
+      <span class="phase-label">Realm of Y'Shaarj</span>
+      <span class="phase-name">Slow his corruption</span>
+      <p>
+        Designated players are teleported. Kill <em>Minions of Y'Shaarj</em>
+        there to slow Garrosh's energy gain back in the real world. Adds
+        empower Garrosh if they melee, so kill them efficiently.
+      </p>
+    </div>
+
+    <h3>Phases 2 & 3 — Empowered Mechanics</h3>
+    <div class="ability">
+      <span class="ability-name">Whirling Corruption</span>
+      <span class="ability-desc">Garrosh spins, summoning projectiles. <strong>Spread out</strong> so projectiles spread; standing close = bursts of damage.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Touch of Y'Shaarj</span>
+      <span class="ability-desc">Mind controls a player. <strong>Pre-assign stuns per player</strong>: Bash, Hammer of Justice, Quaking Palm. A controlled player nukes the raid with full rotation. Improvising = wipe.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Empowered Whirling Corruption</span>
+      <span class="ability-desc">Heroic Phase 3. Spread is mandatory — projectiles also leave persistent voids.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Gripping Despair</span>
+      <span class="ability-desc">Stacking tank debuff. Swap at 8–10 stacks (the exact swap point depends on your tanks' gear).</span>
+    </div>
+
+    <h3>Heroic Phase 4 — Vision of Stormwind</h3>
+    <p>
+      Heroic and Mythic only. When Garrosh hits 0% (he's invincible at this
+      point), 20 seconds of RP. Then the raid is teleported to a ruined
+      Stormwind. He heals to 60%. Final burn.
+    </p>
+    <div class="ability">
+      <span class="ability-name">Malice (Malicious Blast)</span>
+      <span class="ability-desc">Garrosh fires a beam at a player and stacks a debuff. Successive hits to the same player are deadly. <strong>Rotate players in/out of the beam</strong> using immunity cooldowns (Ice Block, Divine Shield, Cloak of Shadows, Bubble) to reset Malice stacks.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Manifest Rage</span>
+      <span class="ability-desc">Cast at 100 energy. Heavy raid damage AND summons many Manifestation of Rage adds. <strong>Interrupted by Iron Star impacts</strong> — kite Iron Stars to crash into Garrosh.</span>
+    </div>
+    <div class="ability">
+      <span class="ability-name">Bombardment / Iron Stars (Phase 4)</span>
+      <span class="ability-desc">More Iron Stars. Designate kiters (Druids, Priests with Body and Soul) to lead them into Garrosh during Manifest Rage casts.</span>
+    </div>
+
+    <h3>Heroic Strategy Highlights</h3>
+    <ul class="bullets">
+      <li><strong>Pre-assign stun rotation</strong> for every player in case of Touch of Y'Shaarj. Document it. Rehearse it.</li>
+      <li><strong>Iron Star kiters in Phase 4</strong>: usually 1 Druid and 1 Priest with movement buffs. They lead stars into Garrosh.</li>
+      <li><strong>Malice soakers</strong>: a rotation of immunity-equipped players cycle the beam.</li>
+      <li><strong>Warlock Gates</strong> connect both ends of the room for crossing during add waves.</li>
+      <li><strong>Battle res</strong> carefully: don't res a player while they're in the Realm of Y'Shaarj.</li>
+    </ul>
+
+    <h3>Phase Strategy / Pacing</h3>
+    <p>
+      Phase 1 is a controlled DPS race — get him to 10% before mechanics
+      compound too far. Transitions are mostly add-management efficiency.
+      Phases 2/3 are coordination tests: spread, stun, dispel, repeat. Phase
+      4 (Heroic) is the wall — it tests every system: tank cooldowns, healer
+      mana, DPS rotation, raid-leader call timing.
+    </p>
+
+    <h3>Role-By-Role Checklist</h3>
+    <div class="role-grid">
+      <div class="role-card">
+        <span class="role-tag role-tank">Tanks</span>
+        <ul class="bullets">
+          <li>Tank Garrosh on the Horde crest in the center; off-tank handles Warbringers.</li>
+          <li>Swap on 8–10 Gripping Despair stacks (Phase 2/3).</li>
+          <li>Phase 4: heavy tank damage — every CD on rotation, especially when moving the boss.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-healer">Healers</span>
+        <ul class="bullets">
+          <li>Raid CDs on every <em>Whirling Corruption</em>.</li>
+          <li>Track Malice stacks; pre-heal Malice receivers.</li>
+          <li>Save defensives for Manifest Rage casts in Phase 4.</li>
+        </ul>
+      </div>
+      <div class="role-card">
+        <span class="role-tag role-dps">DPS</span>
+        <ul class="bullets">
+          <li>Stun assignments for Touch of Y'Shaarj — execute on schedule.</li>
+          <li>Do NOT interrupt Wolf Rider Chain Lightnings.</li>
+          <li>Iron Star kiters use them as boss interrupts in Phase 4.</li>
+          <li>Phase 4 burn: Lust here. Tunnel.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="danger">
+      A missed stun during Touch of Y'Shaarj = a fully-geared raider nuking
+      your healers for 5+ seconds. Pre-assigned stun rotations are
+      non-negotiable. Improvisation does not work on Heroic Garrosh.
+    </div>
+
+    <div class="tip">
+      Heroic Garrosh drops the <strong>Kor'kron Juggernaut</strong> mount and
+      <strong>Tusks of Mannoroth</strong> transmog — 1% rates each. They are
+      removed when MoP Classic ends. Every kill counts.
+    </div>
+
+  </div>
+</article>
+
+</div><!-- /.container -->
+
+<!-- ===================================================================== -->
+<!-- FOOTER                                                                -->
+<!-- ===================================================================== -->
+<footer>
+  <p>
+    <strong style="font-family: 'Cinzel', serif; color: var(--ember);">For the Horde.</strong>
+  </p>
+  <p>
+    Compiled for guild-internal teaching use. Strategies adapted from the
+    original Tier 16 community knowledge base, focused on 10-Heroic.
+  </p>
+  <p class="sources">
+    SOURCES &nbsp;·&nbsp;
+    ICY-VEINS &nbsp;·&nbsp;
+    FATBOSS &nbsp;·&nbsp;
+    WOWHEAD &nbsp;·&nbsp;
+    WARCRAFT WIKI &nbsp;·&nbsp;
+    METRO'S HEALING GUIDE
+  </p>
+</footer>
+
+<!-- ===================================================================== -->
+<!-- BACK-TO-TOP BUTTON                                                    -->
+<!-- ===================================================================== -->
+<button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+</div><!-- /.layout -->
+
+<script>
+  // -------------------------------------------------------------------------
+  // BACK-TO-TOP BUTTON
+  // Show when scrolled down >400px, scroll smoothly to top on click.
+  // Kept minimal and self-contained so the file works offline.
+  // -------------------------------------------------------------------------
+  (function() {
+    const btn = document.getElementById('backToTop');
+    if (!btn) return;
+
+    // Toggle visibility based on scroll position
+    function update() {
+      if (window.scrollY > 400) {
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+
+    // Click → smooth-scroll to top
+    btn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  })();
+</script>
+
+</body>
+</html>
