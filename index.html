@@ -647,6 +647,107 @@
   .ability-name a:hover {
     border-bottom-color: var(--ember-bright);
   }
+
+  /* -------------------------------------------------------------------------
+     BOSS SCREENSHOT
+     A hero image at the top of the boss body. Soft border + caption.
+     ------------------------------------------------------------------------- */
+  .boss-shot {
+    margin: 0 0 2rem;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--rad-md);
+    overflow: hidden;
+    background: var(--bg-card-alt);
+  }
+  .boss-shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* The Wowhead screenshots are often wider than tall — set a max-height
+       so they don't dominate the page on tall monitors. */
+    max-height: 360px;
+    object-fit: cover;
+    object-position: center;
+  }
+  .boss-shot figcaption {
+    padding: 0.5rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    text-align: right;
+    border-top: 1px solid var(--border);
+  }
+
+  /* -------------------------------------------------------------------------
+     RAID CLIPS — collapsible placeholder section per boss.
+     Mirrors the video <details> styling for consistency.
+     ------------------------------------------------------------------------- */
+  details.clips {
+    margin: 1rem 0 0;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--rad-md);
+    overflow: hidden;
+  }
+  details.clips summary {
+    padding: 1rem 1.4rem;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    color: var(--ember);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    list-style: none;
+    transition: background 0.2s;
+    user-select: none;
+  }
+  details.clips summary::-webkit-details-marker { display: none; }
+  details.clips summary::before {
+    content: '+ ';
+    display: inline-block;
+    margin-right: 0.4rem;
+    color: var(--horde);
+    transition: transform 0.2s;
+  }
+  details.clips[open] summary::before { content: '− '; }
+  details.clips summary:hover { background: rgba(201,49,38,0.08); }
+
+  .clips-content {
+    padding: 0 1.4rem 1.2rem;
+  }
+  .clips-note {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+  .clips-howto {
+    margin: 0 0 1rem 1.5rem;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+  }
+  .clips-howto li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+  .clips-howto code {
+    background: rgba(0,0,0,0.4);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    color: var(--ember-bright);
+    border: 1px solid var(--border);
+    word-break: break-all;
+  }
+
+  /* Print: hide clips placeholder (not useful in print) */
+  @media print {
+    details.clips { display: none; }
+    .boss-shot { max-height: 200px; }
+  }
 </style>
 </head>
 <body>
@@ -743,6 +844,13 @@
   </header>
 
   <div class="boss-body">
+    <figure class="boss-shot">
+      <img src="https://wow.zamimg.com/uploads/screenshots/normal/386113-immerseus.jpg"
+           alt="In-game screenshot of Immerseus"
+           loading="lazy">
+      <figcaption>Screenshot via Wowhead</figcaption>
+    </figure>
+
 
     <div class="summary">
       <h3>The Summary</h3>
@@ -761,29 +869,29 @@
 
     <h4>Immerseus Phase</h4>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Sha+Bolt" target="_blank" rel="noopener">Sha Bolt</a></span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/spell=143295/sha-bolt" target="_blank" rel="noopener">Sha Bolt</a></span>
       <span class="ability-desc">Hits every raid member every ~10 seconds, dealing shadow damage and leaving a void zone at their feet. Stay 5+ yards apart; move just out of your zone so the next one drops adjacent (saves space).</span>
     </div>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Swirl" target="_blank" rel="noopener">Swirl</a></span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/spell=143309/swirl" target="_blank" rel="noopener">Swirl</a></span>
       <span class="ability-desc">Summons moving void zones AND channels a 10-second water-jet in a cone in front. The cone rotates clockwise. Stay out of the front arc and dodge the wandering zones.</span>
     </div>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Corrosive+Blast" target="_blank" rel="noopener">Corrosive Blast</a></span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/spell=143436/corrosive-blast" target="_blank" rel="noopener">Corrosive Blast</a></span>
       <span class="ability-desc">Frontal cone every ~35s. Inflicts a stacking 300% increased shadow-damage debuff — <strong>tank swap on every cast</strong>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Seeping+Sha" target="_blank" rel="noopener">Seeping Sha</a></span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/spell=143281/seeping-sha" target="_blank" rel="noopener">Seeping Sha</a></span>
       <span class="ability-desc">A ring of water around Immerseus. Don't run through him — you'll be damaged and knocked back. Melee his hitbox edge, not his model.</span>
     </div>
 
     <h4>Split Phase</h4>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Sha+Puddles" target="_blank" rel="noopener">Sha Puddles</a> (hostile)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/npc=71603/sha-puddles" target="_blank" rel="noopener">Sha Puddles</a> (hostile)</span>
       <span class="ability-desc">Kill them. When one dies, players within 10 yards get +25% damage to Sha Puddles, stacking. Cluster your DPS around dying puddles to snowball.</span>
     </div>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Contaminated+Puddles" target="_blank" rel="noopener">Contaminated Puddles</a> (friendly)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/npc=71604/contaminated-puddles" target="_blank" rel="noopener">Contaminated Puddles</a> (friendly)</span>
       <span class="ability-desc">Heal them to full. When fully healed, players within 12 yards get +75% healing done AND +25% mana. Healers chain through them.</span>
     </div>
     <div class="ability">
@@ -885,6 +993,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/immerseus/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/immerseus/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/immerseus/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -919,6 +1053,13 @@
   </header>
 
   <div class="boss-body">
+    <figure class="boss-shot">
+      <img src="https://wow.zamimg.com/uploads/screenshots/normal/386114-rook-stonetoe.jpg"
+           alt="In-game screenshot of Fallen Protectors"
+           loading="lazy">
+      <figcaption>Screenshot via Wowhead</figcaption>
+    </figure>
+
 
     <div class="summary">
       <h3>The Summary</h3>
@@ -933,15 +1074,15 @@
 
     <h3>The Three Bosses</h3>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Rook+Stonetoe" target="_blank" rel="noopener">Rook Stonetoe</a> (Tanked)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/npc=71475/rook-stonetoe" target="_blank" rel="noopener">Rook Stonetoe</a> (Tanked)</span>
       <span class="ability-desc">Uses <em>Vengeful Strikes</em>, a frontal cone. Tank faces him away. His Desperate Measures summons three adds: <em>Embodied Misery</em>, <em>Sorrow</em>, and <em>Gloom</em>.</span>
     </div>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=He+Softfoot" target="_blank" rel="noopener">He Softfoot</a> (Mobile)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/npc=71479/he-softfoot" target="_blank" rel="noopener">He Softfoot</a> (Mobile)</span>
       <span class="ability-desc">Drops <em>Garrote</em> debuffs and poison void zones. Doesn't need a hard tank — kite him through clean ground. Interrupt nothing of his; everything he does is movement-based.</span>
     </div>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Sun+Tenderheart" target="_blank" rel="noopener">Sun Tenderheart</a> (Caster)</span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/npc=71480/sun-tenderheart" target="_blank" rel="noopener">Sun Tenderheart</a> (Caster)</span>
       <span class="ability-desc">Stands still and casts <em>Sha Sear</em> — <strong>interrupt every cast</strong>. Drops <em>Calamity</em> void zones.</span>
     </div>
 
@@ -1031,6 +1172,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/fallen-protectors/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/fallen-protectors/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/fallen-protectors/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -1065,6 +1232,13 @@
   </header>
 
   <div class="boss-body">
+    <figure class="boss-shot">
+      <img src="https://wow.zamimg.com/uploads/screenshots/normal/383917-amalgam-of-corruption-this-is-the-version-you-help-against-the-sha-of-pride.jpg"
+           alt="In-game screenshot of Norushen"
+           loading="lazy">
+      <figcaption>Screenshot via Wowhead</figcaption>
+    </figure>
+
 
     <div class="summary">
       <h3>The Summary</h3>
@@ -1085,19 +1259,19 @@
       <span class="ability-desc">Every player starts at 0. It grows from soaking <em>Residual Corruption</em> orbs, from <em>Self Doubt</em>, and from raid mechanics. High corruption = lower damage/healing done, plus the boss eats your power.</span>
     </div>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Test+Realm" target="_blank" rel="noopener">Test Realm</a></span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/spell=144724/test-realm" target="_blank" rel="noopener">Test Realm</a></span>
       <span class="ability-desc">Click an orb near Norushen → teleported to a personal realm. Kill the manifestation of your sin, return purified. DPS realms have adds; healer realms need to keep an NPC alive; tank realms test survival.</span>
     </div>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Blind+Hatred" target="_blank" rel="noopener">Blind Hatred</a></span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/spell=145226/blind-hatred" target="_blank" rel="noopener">Blind Hatred</a></span>
       <span class="ability-desc">A rotating beam from the Amalgam. Dodge it — predictable but deadly. It rotates one direction; pre-position to walk against the spin.</span>
     </div>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Unleashed+Manifestation+/+Essence" target="_blank" rel="noopener">Unleashed Manifestation / Essence</a></span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/npc=72264/unleashed-manifestation-essence" target="_blank" rel="noopener">Unleashed Manifestation / Essence</a></span>
       <span class="ability-desc">Adds that periodically spawn. <strong>Kill them fast</strong> — they fuse with the boss if ignored, granting buffs.</span>
     </div>
     <div class="ability">
-      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/search?q=Expel+Corruption" target="_blank" rel="noopener">Expel Corruption</a></span>
+      <span class="ability-name"><a href="https://www.wowhead.com/mop-classic/spell=145064/expel-corruption" target="_blank" rel="noopener">Expel Corruption</a></span>
       <span class="ability-desc">Boss launches projectiles. Intercept (stand in their path) to prevent them from reaching the boss — otherwise he gets stronger.</span>
     </div>
 
@@ -1166,6 +1340,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/norushen/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/norushen/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/norushen/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -1311,6 +1511,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/sha-of-pride/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/sha-of-pride/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/sha-of-pride/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -1467,6 +1693,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/galakras/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/galakras/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/galakras/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -1623,6 +1875,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/iron-juggernaut/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/iron-juggernaut/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/iron-juggernaut/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -1775,6 +2053,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/dark-shaman/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/dark-shaman/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/dark-shaman/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -1936,6 +2240,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/nazgrim/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/nazgrim/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/nazgrim/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -2087,6 +2417,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/malkorok/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/malkorok/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/malkorok/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -2248,6 +2604,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/spoils/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/spoils/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/spoils/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -2418,6 +2800,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/thok/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/thok/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/thok/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -2583,6 +2991,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/blackfuse/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/blackfuse/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/blackfuse/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -2751,6 +3185,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/klaxxi/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/klaxxi/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/klaxxi/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
@@ -2953,6 +3413,32 @@
           allowfullscreen></iframe>
       </div>
     </details>
+    <details class="clips">
+      <summary>Raid Clips (add your own)</summary>
+      <div class="clips-content">
+        <p class="clips-note">
+          This space is reserved for clips and screenshots from your own raid.
+          To add a clip:
+        </p>
+        <ol class="clips-howto">
+          <li>Drop a <code>.gif</code>, <code>.mp4</code>, or <code>.png</code>
+              file into the <code>clips/garrosh/</code> folder of your repo.</li>
+          <li>Edit this page and replace this placeholder with:
+              <code>&lt;img src="clips/garrosh/your-file.gif" alt="description"&gt;</code>
+              for gifs/images, or
+              <code>&lt;video src="clips/garrosh/your-file.mp4" controls&gt;&lt;/video&gt;</code>
+              for video.</li>
+          <li>Commit and push. The page auto-updates.</li>
+        </ol>
+        <p class="clips-note">
+          Good clips to capture: tank-swap moments, positioning during
+          high-pressure mechanics, what a "perfect" pull looks like vs. a wipe,
+          and any class-specific tricks (interrupt rotations, cooldown timing,
+          movement skips) your raiders discover.
+        </p>
+      </div>
+    </details>
+
 
   </div>
 </article>
